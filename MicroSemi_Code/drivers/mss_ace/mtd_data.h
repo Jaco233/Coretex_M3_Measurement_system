@@ -20,6 +20,22 @@ extern "C" {
 /*
  * Analog block specifications
  */
+#ifdef SMARTFUSION_060_DEVICE
+
+#define NB_OF_QUADS                     1
+#define NB_OF_ABPS_PER_QUAD             2
+#define TOTAL_NB_OF_ABPS                (NB_OF_QUADS * NB_OF_ABPS_PER_QUAD)
+#define NB_OF_ABPS_RANGES               4
+#define NB_OF_ANALOG_MODULES            1
+#define NB_OF_OBD_MODES                 2
+#define NB_OF_QUADS_PER_MODULE          2
+#define NB_OF_CHOPPING_OPTIONS          2
+#define NB_OF_DIRECT_INPUTS_PER_ADC     26
+
+#define NB_OF_ADC_CHANNELS      13
+
+#else
+
 #define NB_OF_QUADS                     6
 #define NB_OF_ABPS_PER_QUAD             2
 #define TOTAL_NB_OF_ABPS                (NB_OF_QUADS * NB_OF_ABPS_PER_QUAD)
@@ -31,6 +47,8 @@ extern "C" {
 #define NB_OF_DIRECT_INPUTS_PER_ADC     4
 
 #define NB_OF_ADC_CHANNELS      13
+
+#endif
 
 /*------------------------------------------------------------------------------
  * mtd_global_settings_t

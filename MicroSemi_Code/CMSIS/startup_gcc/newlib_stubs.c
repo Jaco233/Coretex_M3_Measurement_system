@@ -3,16 +3,14 @@
  * 
  * Stubs for Newlib system calls.
  *  
- * SVN $Revision: 2020 $
- * SVN $Date: 2010-01-20 14:51:50 +0000 (Wed, 20 Jan 2010) $
+ * SVN $Revision: 2455 $
+ * SVN $Date: 2010-03-16 15:23:41 +0000 (Tue, 16 Mar 2010) $
  */
 #include <stdlib.h>
 #include <sys/unistd.h>
 #include <sys/stat.h>
 #include <sys/times.h>
 #include <errno.h>
-#undef errno
-extern int errno;
 
 /*==============================================================================
  * Redirection of standard output to a SmartFusion MSS UART.
@@ -150,6 +148,36 @@ int _read(int file, char *ptr, int len)
 }
 
 /*==============================================================================
+ * Write to a file. libc subroutines will use this system routine for output to
+ * all files, including stdout—so if you need to generate any output, for
+ * example to a serial port for debugging, you should make your minimal write
+ * capable of doing this.
+ */
+int _write_r( void * reent, int file, char * ptr, int len )
+{
+#ifdef ACTEL_STDIO_THRU_UART
+    /*--------------------------------------------------------------------------
+     * Initialize the UART driver if it is the first time this function is
+     * called.
+     */
+    if ( !g_stdio_uart_init_done )
+    {
+        MSS_UART_init( &g_mss_uart0, ACTEL_STDIO_BAUD_RATE, (MSS_UART_DATA_8_BITS | MSS_UART_NO_PARITY));
+        g_stdio_uart_init_done = 1;
+    }
+    
+    /*--------------------------------------------------------------------------
+     * Output text to the UART.
+     */
+    MSS_UART_polled_tx( &g_mss_uart0, (uint8_t *)ptr, len );
+    
+    return len;
+#else   /* ACTEL_STDIO_THRU_UART */
+    return 0;
+#endif  /* ACTEL_STDIO_THRU_UART */
+}
+
+/*==============================================================================
  * Increase program data space. As malloc and related functions depend on this,
  * it is useful to have a working implementation. The following suffices for a
  * standalone system; it exploits the symbol _end automatically defined by the
@@ -171,8 +199,8 @@ caddr_t _sbrk(int incr)
     asm volatile ("MRS %0, msp" : "=r" (stack_ptr) );
     if (heap_end + incr > stack_ptr)
     {
-      write (1, "Heap and stack collision\n", 25);
-      abort ();
+      _write_r ((void *)0, 1, "Heap and stack collision\n", 25);
+      _exit (1);
     }
   
     heap_end += incr;
@@ -214,34 +242,5 @@ int _wait(int *status)
     return -1;
 }
 
-/*==============================================================================
- * Write to a file. libc subroutines will use this system routine for output to
- * all files, including stdout—so if you need to generate any output, for
- * example to a serial port for debugging, you should make your minimal write
- * capable of doing this.
- */
-int _write_r( void * reent, int file, char * ptr, int len )
-{
-#ifdef ACTEL_STDIO_THRU_UART
-	/*--------------------------------------------------------------------------
-	 * Initialize the UART driver if it is the first time this function is
-	 * called.
-	 */
-	if ( !g_stdio_uart_init_done )
-	{
-		MSS_UART_init( &g_mss_uart0, ACTEL_STDIO_BAUD_RATE, (MSS_UART_DATA_8_BITS | MSS_UART_NO_PARITY));
-		g_stdio_uart_init_done = 1;
-	}
-	
-	/*--------------------------------------------------------------------------
-	 * Output text to the UART.
-	 */
-	MSS_UART_polled_tx( &g_mss_uart0, (uint8_t *)ptr, len );
-	
-	return len;
-#else	/* ACTEL_STDIO_THRU_UART */
-	return 0;
-#endif	/* ACTEL_STDIO_THRU_UART */
-}
 
 

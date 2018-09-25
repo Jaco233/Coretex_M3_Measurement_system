@@ -2,13 +2,17 @@
 * (c) Copyright  Actel Corporation. All rights reserved.
 *
 *ACE configuration .h file
-*Created by Actel MSS_ACE Configurator Fri Dec 17 12:12:19 2010
+*Created by Actel MSS_ACE Configurator Sun Sep 16 11:22:55 2018
 *
 */
 
 #ifndef ACE_HANDLES_H
 #define ACE_HANDLES_H
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*-----------------------------------------------------------------------------
 *Analog input channel handles
@@ -33,9 +37,12 @@ typedef enum {
 typedef enum {
     ADC0_MAIN = 0,
     ADC1_MAIN,
-    ADC2_MAIN,
     NB_OF_ACE_PROCEDURE_HANDLES
 } ace_procedure_handle_t;
 
-
+#ifdef __cplusplus
+}
 #endif
+
+
+#endif /* ACE_HANDLES_H*/

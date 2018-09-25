@@ -3,8 +3,8 @@
  * 
  *  SmartFusion A2FXXXM3 vector table and startup code.
  *
- * SVN $Revision: 2068 $
- * SVN $Date: 2010-01-27 17:27:41 +0000 (Wed, 27 Jan 2010) $
+ * SVN $Revision: 6669 $
+ * SVN $Date: 2014-07-04 11:55:57 +0100 (Fri, 04 Jul 2014) $
  */
 
 	.syntax unified
@@ -198,11 +198,9 @@ Reset_Handler:
 _start:
 /*------------------------------------------------------------------------------	
  * Call CMSIS system init function.
- * This is not actually required for SmartFusioon as all low initialisations are
- * done as part of the system boot.
  */
-;    ldr     r0, =SystemInit
-;    blx     r0
+    ldr     r0, =SystemInit
+    blx     r0
     
 /*------------------------------------------------------------------------------	 
  * Check if the executable is built for NVM LMA mirrored to VMA address.
@@ -261,8 +259,13 @@ clear_bss_loop:
 /*------------------------------------------------------------------------------	
  * Call global constructors
  */
+    /*
+     * Align to word and use 32-bits LDR instruction to ensure the ADD instruction
+     * taking PC as argument is aligned on a word boundary.
+     */
+    .align 4
 call_glob_ctor:
-	ldr r0, =__libc_init_array
+	ldr.w r0, =__libc_init_array
     add lr, pc, #3
  	bx r0
 

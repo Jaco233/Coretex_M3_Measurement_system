@@ -1,15 +1,13 @@
 /*******************************************************************************
  * (c) Copyright 2009 Actel Corporation.  All rights reserved.
  * 
- * SVN $Revision: 2905 $
- * SVN $Date: 2010-08-20 14:03:28 +0100 (Fri, 20 Aug 2010) $
+ * SVN $Revision: 3952 $
+ * SVN $Date: 2011-11-14 11:55:18 +0000 (Mon, 14 Nov 2011) $
  */
 #include "mss_ace.h"
 #include "mss_ace_configurator.h"
 #include "../../CMSIS/a2fxxxm3.h"
 #include "../../CMSIS/mss_assert.h"
-#include "../../drivers_config/mss_ace/ace_handles.h"
-#include "../../drivers_config/mss_ace/ace_config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,7 +18,7 @@ extern "C" {
  */
 extern ace_channel_desc_t g_ace_channel_desc_table[ACE_NB_OF_INPUT_CHANNELS];
 extern ace_adc_config_t g_ace_adc_config[ACE_NB_OF_ADC];
-extern const uint32_t g_ace_current_resistors[ACE_NB_OF_CURRENT_MONITORS];
+extern const uint16_t g_ace_current_resistors[ACE_NB_OF_CURRENT_MONITORS];
 
 /*-------------------------------------------------------------------------*//**
  *
@@ -42,7 +40,52 @@ void ace_init_convert(void);
 #define VOLTAGE_CHANNEL     0u
 #define CURRENT_CHANNEL     1u
 #define TEMPERATURE_CHANNEL 2u
-#define INVALID_CHANNEL     0xFFu
+#define UNUSED_CHANNEL      0xFFu
+#define INVALID_QUAD_ID     0xFFu
+
+#ifdef SMARTFUSION_060_DEVICE
+
+static const uint8_t channel_type_lut[] =
+{
+    VOLTAGE_CHANNEL,        /* ADC0_1P5V */
+    VOLTAGE_CHANNEL,        /* ABPS0 */
+    VOLTAGE_CHANNEL,        /* ABPS1 */
+    CURRENT_CHANNEL,        /* CM0 */
+    TEMPERATURE_CHANNEL,    /* TM0 */
+    VOLTAGE_CHANNEL,        /* ADC0 */
+    VOLTAGE_CHANNEL,        /* ADC1 */
+    VOLTAGE_CHANNEL,        /* ADC2 */
+    VOLTAGE_CHANNEL,        /* ADC3 */
+    VOLTAGE_CHANNEL,        /* ADC4 */
+    VOLTAGE_CHANNEL,        /* ADC5 */
+    VOLTAGE_CHANNEL,        /* ADC6 */
+    VOLTAGE_CHANNEL,        /* ADC7 */
+    VOLTAGE_CHANNEL,        /* ADC8 */
+    VOLTAGE_CHANNEL,        /* ADC9 */
+    VOLTAGE_CHANNEL         /* ADC10 */
+};
+
+static const uint8_t channel_quad_lut[] =
+{
+    INVALID_QUAD_ID,  /* ADC0_1P5V */
+    0u,     /* ABPS0 */
+    0u,     /* ABPS1 */
+    0u,     /* CM0 */
+    0u,     /* TM0 */
+    INVALID_QUAD_ID,  /* ADC0 */
+    INVALID_QUAD_ID,  /* ADC1 */
+    INVALID_QUAD_ID,  /* ADC2 */
+    INVALID_QUAD_ID,  /* ADC3 */
+    INVALID_QUAD_ID,  /* ADC4 */
+    INVALID_QUAD_ID,  /* ADC5 */
+    INVALID_QUAD_ID,  /* ADC6 */
+    INVALID_QUAD_ID,  /* ADC7 */
+    INVALID_QUAD_ID,  /* ADC8 */
+    INVALID_QUAD_ID,  /* ADC9 */
+    INVALID_QUAD_ID   /* ADC10 */
+};
+
+#else
 
 static const uint8_t channel_type_lut[] =
 {
@@ -59,8 +102,8 @@ static const uint8_t channel_type_lut[] =
     VOLTAGE_CHANNEL,        /* ADC1 = 10 */
     VOLTAGE_CHANNEL,        /* ADC2 = 11 */
     VOLTAGE_CHANNEL,        /* ADC3 = 12 */
-    INVALID_CHANNEL,
-    INVALID_CHANNEL,
+    UNUSED_CHANNEL,
+    UNUSED_CHANNEL,
     VOLTAGE_CHANNEL,        /* SDD0_IN = 15 */
 
     VOLTAGE_CHANNEL,        /* ADC1_1P5V = 16 */
@@ -76,8 +119,8 @@ static const uint8_t channel_type_lut[] =
     VOLTAGE_CHANNEL,        /* ADC5 = 26 */
     VOLTAGE_CHANNEL,        /* ADC6 = 27 */
     VOLTAGE_CHANNEL,        /* ADC7 = 28 */
-    INVALID_CHANNEL,
-    INVALID_CHANNEL,
+    UNUSED_CHANNEL,
+    UNUSED_CHANNEL,
     VOLTAGE_CHANNEL,        /* SDD1_IN = 31 */
 
     VOLTAGE_CHANNEL,        /* ADC2_1P5V = 32 */
@@ -85,22 +128,22 @@ static const uint8_t channel_type_lut[] =
     VOLTAGE_CHANNEL,        /* ABPS9 = 34 */
     CURRENT_CHANNEL,        /* CM4 = 35 */
     TEMPERATURE_CHANNEL,    /* TM4 = 36 */
-    VOLTAGE_CHANNEL,        /* ABPS10 = 37 */
-    VOLTAGE_CHANNEL,        /* ABPS11 = 38 */
-    CURRENT_CHANNEL,        /* CM5 = 39 */
-    TEMPERATURE_CHANNEL,    /* TM5 = 40 */
+    UNUSED_CHANNEL,
+    UNUSED_CHANNEL,
+    UNUSED_CHANNEL,
+    UNUSED_CHANNEL,
     VOLTAGE_CHANNEL,        /* ADC8 = 41 */
     VOLTAGE_CHANNEL,        /* ADC9 = 42 */
     VOLTAGE_CHANNEL,        /* ADC10 = 43 */
     VOLTAGE_CHANNEL,        /* ADC11 = 44 */
-    INVALID_CHANNEL,
-    INVALID_CHANNEL,
+    UNUSED_CHANNEL,
+    UNUSED_CHANNEL,
     VOLTAGE_CHANNEL         /* SDD2_IN = 47 */
 };
 
 static const uint8_t channel_quad_lut[] =
 {
-    0xFFu,   /* ADC0_1P5V = 0 */
+    INVALID_QUAD_ID,   /* ADC0_1P5V = 0 */
     0u,      /* ABPS0 = 1 */
     0u,      /* ABPS1 = 2 */
     0u,      /* CM0 = 3 */
@@ -109,15 +152,15 @@ static const uint8_t channel_quad_lut[] =
     1u,      /* ABPS3 = 6 */
     1u,      /* CM1 = 7 */
     1u,      /* TM1 = 8 */
-    0xFFu,   /* ADC0 = 9 */
-    0xFFu,   /* ADC1 = 10 */
-    0xFFu,   /* ADC2 = 11 */
-    0xFFu,   /* ADC3 = 12 */
-    INVALID_CHANNEL,
-    INVALID_CHANNEL,
-    0xFFu,   /* SDD0_IN = 15 */
+    INVALID_QUAD_ID,   /* ADC0 = 9 */
+    INVALID_QUAD_ID,   /* ADC1 = 10 */
+    INVALID_QUAD_ID,   /* ADC2 = 11 */
+    INVALID_QUAD_ID,   /* ADC3 = 12 */
+    INVALID_QUAD_ID,
+    INVALID_QUAD_ID,
+    INVALID_QUAD_ID,   /* SDD0_IN = 15 */
 
-    0xFFu,   /* ADC1_1P5V = 16 */
+    INVALID_QUAD_ID,   /* ADC1_1P5V = 16 */
     2u,      /* ABPS4 = 17 */
     2u,      /* ABPS5 = 18 */
     2u,      /* CM2 = 19 */
@@ -126,41 +169,93 @@ static const uint8_t channel_quad_lut[] =
     3u,      /* ABPS7 = 22 */
     3u,      /* CM3 = 23 */
     3u,      /* TM3 = 24 */
-    0xFFu,   /* ADC4 = 25 */
-    0xFFu,   /* ADC5 = 26 */
-    0xFFu,   /* ADC6 = 27 */
-    0xFFu,   /* ADC7 = 28 */
-    INVALID_CHANNEL,
-    INVALID_CHANNEL,
-    0xFFu,   /* SDD1_IN = 31 */
+    INVALID_QUAD_ID,   /* ADC4 = 25 */
+    INVALID_QUAD_ID,   /* ADC5 = 26 */
+    INVALID_QUAD_ID,   /* ADC6 = 27 */
+    INVALID_QUAD_ID,   /* ADC7 = 28 */
+    INVALID_QUAD_ID,
+    INVALID_QUAD_ID,
+    INVALID_QUAD_ID,   /* SDD1_IN = 31 */
 
-    0xFFu,   /* ADC2_1P5V = 32 */
+    INVALID_QUAD_ID,   /* ADC2_1P5V = 32 */
     4u,      /* ABPS8 = 33 */
     4u,      /* ABPS9 = 34 */
     4u,      /* CM4 = 35 */
     4u,      /* TM4 = 36 */
-    5u,      /* ABPS10 = 37 */
-    5u,      /* ABPS11 = 38 */
-    5u,      /* CM5 = 39 */
-    5u,      /* TM5 = 40 */
-    0xFFu,   /* ADC8 = 41 */
-    0xFFu,   /* ADC9 = 42 */
-    0xFFu,   /* ADC10 = 43 */
-    0xFFu,   /* ADC11 = 44 */
-    INVALID_CHANNEL,
-    INVALID_CHANNEL,
-    0xFFu    /* SDD2_IN = 47 */
+    INVALID_QUAD_ID,
+    INVALID_QUAD_ID,
+    INVALID_QUAD_ID,
+    INVALID_QUAD_ID,
+    INVALID_QUAD_ID,   /* ADC8 = 41 */
+    INVALID_QUAD_ID,   /* ADC9 = 42 */
+    INVALID_QUAD_ID,   /* ADC10 = 43 */
+    INVALID_QUAD_ID,   /* ADC11 = 44 */
+    INVALID_QUAD_ID,
+    INVALID_QUAD_ID,
+    INVALID_QUAD_ID    /* SDD2_IN = 47 */
 };
+
+#endif
 
 /*-------------------------------------------------------------------------*//**
  *
  */
 #define NON_ABPS_CHANNEL    0xFFu
-#define MAX_NB_OF_APBS      12u
+
+
+#ifdef SMARTFUSION_060_DEVICE
+#define MAX_NB_OF_APBS      2u
+#else
+#define MAX_NB_OF_APBS      10u
+#endif
 
 /*-------------------------------------------------------------------------*//**
  * Lookup of the quad to which an ABPS belongs
  */
+#ifdef SMARTFUSION_060_DEVICE
+
+static const uint8_t abps_channel_lut[] =
+{
+    NON_ABPS_CHANNEL,   /* ADC0_1P5V */
+    0u,                 /* ABPS0 */
+    0u,                 /* ABPS1 */
+    NON_ABPS_CHANNEL,   /* CM0 */
+    NON_ABPS_CHANNEL,   /* TM0 */
+    NON_ABPS_CHANNEL,   /* ADC0 */
+    NON_ABPS_CHANNEL,   /* ADC1 */
+    NON_ABPS_CHANNEL,   /* ADC2 */
+    NON_ABPS_CHANNEL,   /* ADC3 */
+    NON_ABPS_CHANNEL,   /* ADC4 */
+    NON_ABPS_CHANNEL,   /* ADC5 */
+    NON_ABPS_CHANNEL,   /* ADC6 */
+    NON_ABPS_CHANNEL,   /* ADC7 */
+    NON_ABPS_CHANNEL,   /* ADC8 */
+    NON_ABPS_CHANNEL,   /* ADC9 */
+    NON_ABPS_CHANNEL    /* ADC10 */
+};
+
+static const uint8_t abps_idx_lut[] =
+{
+    NON_ABPS_CHANNEL,   /* ADC0_1P5V */
+    0u,                 /* ABPS0 */
+    1u,                 /* ABPS1 */
+    NON_ABPS_CHANNEL,   /* CM0 */
+    NON_ABPS_CHANNEL,   /* TM0 */
+    NON_ABPS_CHANNEL,   /* ADC0 */
+    NON_ABPS_CHANNEL,   /* ADC1 */
+    NON_ABPS_CHANNEL,   /* ADC2 */
+    NON_ABPS_CHANNEL,   /* ADC3 */
+    NON_ABPS_CHANNEL,   /* ADC4 */
+    NON_ABPS_CHANNEL,   /* ADC5 */
+    NON_ABPS_CHANNEL,   /* ADC6 */
+    NON_ABPS_CHANNEL,   /* ADC7 */
+    NON_ABPS_CHANNEL,   /* ADC8 */
+    NON_ABPS_CHANNEL,   /* ADC9 */
+    NON_ABPS_CHANNEL    /* ADC10 */
+};
+
+#else
+
 static const uint8_t abps_channel_lut[] =
 {
     NON_ABPS_CHANNEL,   /* ADC0_1P5V = 0 */
@@ -176,8 +271,8 @@ static const uint8_t abps_channel_lut[] =
     NON_ABPS_CHANNEL,   /* ADC1 = 10 */
     NON_ABPS_CHANNEL,   /* ADC2 = 11 */
     NON_ABPS_CHANNEL,   /* ADC3 = 12 */
-    INVALID_CHANNEL,
-    INVALID_CHANNEL,
+    UNUSED_CHANNEL,
+    UNUSED_CHANNEL,
     NON_ABPS_CHANNEL,   /* SDD0_IN = 15 */
 
     NON_ABPS_CHANNEL,   /* ADC1_1P5V = 16 */
@@ -193,8 +288,8 @@ static const uint8_t abps_channel_lut[] =
     NON_ABPS_CHANNEL,   /* ADC5 = 26 */
     NON_ABPS_CHANNEL,   /* ADC6 = 27 */
     NON_ABPS_CHANNEL,   /* ADC7 = 28 */
-    INVALID_CHANNEL,
-    INVALID_CHANNEL,
+    UNUSED_CHANNEL,
+    UNUSED_CHANNEL,
     NON_ABPS_CHANNEL,   /* SDD1_IN = 31 */
 
     NON_ABPS_CHANNEL,   /* ADC2_1P5V = 32 */
@@ -202,16 +297,16 @@ static const uint8_t abps_channel_lut[] =
     4u,                 /* ABPS9 = 34 */
     NON_ABPS_CHANNEL,   /* CM4 = 35 */
     NON_ABPS_CHANNEL,   /* TM4 = 36 */
-    5u,                 /* ABPS10 = 37 */
-    5u,                 /* ABPS11 = 38 */
-    NON_ABPS_CHANNEL,   /* CM5 = 39 */
-    NON_ABPS_CHANNEL,   /* TM5 = 40 */
+    UNUSED_CHANNEL,
+    UNUSED_CHANNEL,
+    UNUSED_CHANNEL,
+    UNUSED_CHANNEL,
     NON_ABPS_CHANNEL,   /* ADC8 = 41 */
     NON_ABPS_CHANNEL,   /* ADC9 = 42 */
     NON_ABPS_CHANNEL,   /* ADC10 = 43 */
     NON_ABPS_CHANNEL,   /* ADC11 = 44 */
-    INVALID_CHANNEL,
-    INVALID_CHANNEL,
+    UNUSED_CHANNEL,
+    UNUSED_CHANNEL,
     NON_ABPS_CHANNEL    /* SDD2_IN = 47 */
 };
 
@@ -230,8 +325,8 @@ static const uint8_t abps_idx_lut[] =
     NON_ABPS_CHANNEL,   /* ADC1 = 10 */
     NON_ABPS_CHANNEL,   /* ADC2 = 11 */
     NON_ABPS_CHANNEL,   /* ADC3 = 12 */
-    INVALID_CHANNEL,
-    INVALID_CHANNEL,
+    UNUSED_CHANNEL,
+    UNUSED_CHANNEL,
     NON_ABPS_CHANNEL,   /* SDD0_IN = 15 */
 
     NON_ABPS_CHANNEL,   /* ADC1_1P5V = 16 */
@@ -247,8 +342,8 @@ static const uint8_t abps_idx_lut[] =
     NON_ABPS_CHANNEL,   /* ADC5 = 26 */
     NON_ABPS_CHANNEL,   /* ADC6 = 27 */
     NON_ABPS_CHANNEL,   /* ADC7 = 28 */
-    INVALID_CHANNEL,
-    INVALID_CHANNEL,
+    UNUSED_CHANNEL,
+    UNUSED_CHANNEL,
     NON_ABPS_CHANNEL,   /* SDD1_IN = 31 */
 
     NON_ABPS_CHANNEL,   /* ADC2_1P5V = 32 */
@@ -256,28 +351,30 @@ static const uint8_t abps_idx_lut[] =
     9u,                 /* ABPS9 = 34 */
     NON_ABPS_CHANNEL,   /* CM4 = 35 */
     NON_ABPS_CHANNEL,   /* TM4 = 36 */
-    10u,                 /* ABPS10 = 37 */
-    11u,                 /* ABPS11 = 38 */
-    NON_ABPS_CHANNEL,   /* CM5 = 39 */
-    NON_ABPS_CHANNEL,   /* TM5 = 40 */
+    UNUSED_CHANNEL,
+    UNUSED_CHANNEL,
+    UNUSED_CHANNEL,
+    UNUSED_CHANNEL,
     NON_ABPS_CHANNEL,   /* ADC8 = 41 */
     NON_ABPS_CHANNEL,   /* ADC9 = 42 */
     NON_ABPS_CHANNEL,   /* ADC10 = 43 */
     NON_ABPS_CHANNEL,   /* ADC11 = 44 */
-    INVALID_CHANNEL,
-    INVALID_CHANNEL,
+    UNUSED_CHANNEL,
+    UNUSED_CHANNEL,
     NON_ABPS_CHANNEL    /* SDD2_IN = 47 */
 };
+
+#endif
 
 /*-------------------------------------------------------------------------*//**
  *
  */
-static const int8_t apbs_gain_lut[] =
+static const uint8_t apbs_gain_lut[] =
 {
-    12,
-    8,
-    4,
-    2
+    12u,
+    8u,
+    4u,
+    2u
 };
 
 static const int16_t apbs_range[] =
@@ -303,7 +400,7 @@ ACE_get_channel_type
 {
     channel_type_t channel_type = VOLTAGE;
     
-    ASSERT(channel_handle < ACE_NB_OF_INPUT_CHANNELS);
+    ASSERT((int32_t)channel_handle < ACE_NB_OF_INPUT_CHANNELS);
     
     if((int32_t)channel_handle < ACE_NB_OF_INPUT_CHANNELS)
     {
@@ -360,11 +457,11 @@ void ace_init_convert(void)
     {
         uint8_t quad_id;
         uint8_t acb_config_byte;
-        uint32_t channel_is_abps2;
+        uint8_t channel_is_abps2;
         
         quad_id = abps_idx / 2u;
         acb_config_byte = ACE->ACB_DATA[quad_id].b8;
-        channel_is_abps2 = abps_idx & 0x01uL;
+        channel_is_abps2 = abps_idx & 0x01u;
         if(channel_is_abps2)
         {
             /* ABPS2 */
@@ -395,7 +492,7 @@ void ace_init_convert(void)
                 break;
                 
             case CURRENT_CHANNEL:
-                ASSERT( quad_id != 0xFFu );
+                ASSERT( quad_id != INVALID_QUAD_ID );
                 acb_config_byte = ACE->ACB_DATA[quad_id].b9;
                 if ( acb_config_byte & 0x01u )
                 {
@@ -408,7 +505,7 @@ void ace_init_convert(void)
                 break;
             
             case TEMPERATURE_CHANNEL:
-                ASSERT( quad_id != 0xFFu );
+                ASSERT( quad_id != INVALID_QUAD_ID );
                 acb_config_byte = ACE->ACB_DATA[quad_id].b10;
                 if ( acb_config_byte & 0x01u )
                 {
@@ -442,23 +539,40 @@ int32_t ACE_convert_to_mV
     uint16_t                sample_value
 )
 {
-    uint32_t adc_voltage;
     int32_t voltage;
     adc_channel_id_t channel_id;
     uint8_t adc_id;
-    uint8_t apbs_idx;
     
     channel_id = g_ace_channel_desc_table[channel_handle].signal_id;
     adc_id = (uint8_t)channel_id >> 4u;
-    adc_voltage = ( g_ace_adc_config[adc_id].va_ref * (uint32_t)sample_value ) / PPE_SAMPLES_RESOLUTION;
-    voltage = (int32_t)adc_voltage;
-
-    apbs_idx = abps_idx_lut[channel_id];
-    if ( abps_channel_lut[channel_id] != NON_ABPS_CHANNEL )
+    
+    if (NON_ABPS_CHANNEL == abps_channel_lut[channel_id])
+    {
+        uint32_t adc_voltage;
+        
+        adc_voltage = ( g_ace_adc_config[adc_id].va_ref * (uint32_t)sample_value ) / PPE_SAMPLES_RESOLUTION;
+        voltage = (int32_t)adc_voltage;
+    }
+    else
     {
         uint8_t gdec;
+        uint8_t apbs_idx;
+        int32_t range;
+        int32_t gain;
+        int32_t va_ref;
+        int32_t sample;
+        int32_t ppe_resolution;
+        
+        apbs_idx = abps_idx_lut[channel_id];
         gdec = g_gdec_lut[apbs_idx];
-        voltage = (voltage * apbs_gain_lut[gdec]) - apbs_range[gdec];
+
+        sample = (int32_t)sample_value;
+        ppe_resolution = (int32_t)PPE_SAMPLES_RESOLUTION;
+        gain = (int32_t)apbs_gain_lut[gdec];
+        range = (int32_t)apbs_range[gdec];
+        va_ref = (int32_t)g_ace_adc_config[adc_id].va_ref;
+        
+        voltage = range - (((ppe_resolution - sample) * (va_ref * gain)) / ppe_resolution);
     }
     return voltage;
 }
@@ -474,7 +588,7 @@ uint32_t ACE_convert_to_mA
 {
     uint32_t current = 0u;
     
-    ASSERT(channel_handle < ACE_NB_OF_INPUT_CHANNELS);
+    ASSERT((int32_t)channel_handle < ACE_NB_OF_INPUT_CHANNELS);
     
     if((int32_t)channel_handle < ACE_NB_OF_INPUT_CHANNELS)
     {
@@ -482,7 +596,7 @@ uint32_t ACE_convert_to_mA
         uint8_t current_monitor_idx;
         
         channel_id = g_ace_channel_desc_table[channel_handle].signal_id;
-        ASSERT(channel_id < sizeof(channel_type_lut));
+        ASSERT((int32_t)channel_id < sizeof(channel_type_lut));
         if(CURRENT_CHANNEL == channel_type_lut[channel_id])
         {
             uint32_t resistor;
@@ -497,7 +611,6 @@ uint32_t ACE_convert_to_mA
              *       CM2     :       0x13     :   2
              *       CM3     :       0x17     :   3
              *       CM4     :       0x23     :   4
-             *       CM5     :       0x27     :   5
              */
             current_monitor_idx
                 = (((uint8_t)channel_id & 0x04u) >> 2u) + (((uint8_t)channel_id & 0x30u) >> 3u);
@@ -510,9 +623,64 @@ uint32_t ACE_convert_to_mA
                 
                 /* Compute mA current value taking into account the amplication
                  * factor of 50 used within the current monitor hardware. */
-                voltage = ACE_convert_adc_input_to_mV(channel_handle, sample_value);
-                current = (voltage * (1000u / 50u)) / resistor;
-;
+                voltage = (uint32_t)ACE_convert_to_mV(channel_handle, sample_value);
+                current = (voltage * 20u) / resistor;
+            }
+        }
+    }
+    
+
+    return current;
+}
+
+/*-------------------------------------------------------------------------*//**
+ *
+ */
+uint32_t ACE_convert_to_uA
+(
+    ace_channel_handle_t    channel_handle,
+    uint16_t                sample_value
+)
+{
+    uint32_t current = 0u;
+    
+    ASSERT((int32_t)channel_handle < ACE_NB_OF_INPUT_CHANNELS);
+    
+    if((int32_t)channel_handle < ACE_NB_OF_INPUT_CHANNELS)
+    {
+        adc_channel_id_t channel_id;
+        uint8_t current_monitor_idx;
+        
+        channel_id = g_ace_channel_desc_table[channel_handle].signal_id;
+        ASSERT((int32_t)channel_id < sizeof(channel_type_lut));
+        if(CURRENT_CHANNEL == channel_type_lut[channel_id])
+        {
+            uint32_t resistor;
+            uint32_t voltage;
+            
+            /* Compute index into g_ace_current_resistors[] from the current
+             * channel number. This uses bit 2, 4 and 5 of the channel number
+             * to derive the index as follows:
+             *  channel name : channel number : index
+             *       CM0     :       0x03     :   0
+             *       CM1     :       0x07     :   1
+             *       CM2     :       0x13     :   2
+             *       CM3     :       0x17     :   3
+             *       CM4     :       0x23     :   4
+             */
+            current_monitor_idx
+                = (((uint8_t)channel_id & 0x04u) >> 2u) + (((uint8_t)channel_id & 0x30u) >> 3u);
+            
+            if(current_monitor_idx < (uint8_t)ACE_NB_OF_CURRENT_MONITORS)
+            {
+                /* Retrieve the current sensing external resistor value from 
+                 * the ACE configuration data generated by the ACE configurator. */
+                resistor = g_ace_current_resistors[current_monitor_idx];
+                
+                /* Compute mA current value taking into account the amplication
+                 * factor of 50 used within the current monitor hardware. */
+                voltage = (uint32_t)ACE_convert_to_mV(channel_handle, sample_value);
+                current = (voltage * (1000000u / 50u) ) / resistor;
             }
         }
     }
@@ -532,7 +700,7 @@ uint32_t ACE_convert_to_Kelvin
     uint32_t temperature;
     uint32_t voltage;
     
-    voltage = ACE_convert_adc_input_to_mV( channel_handle, sample_value );
+    voltage = (uint32_t)ACE_convert_to_mV( channel_handle, sample_value );
     
     /* Tk = (V * 10^3) / 2.5  */
     temperature = (voltage * 10u) / 25u;
@@ -552,7 +720,7 @@ int32_t ACE_convert_to_Celsius
     int32_t temperature;
     int32_t voltage;
     
-    voltage = (int32_t)ACE_convert_adc_input_to_mV( channel_handle, sample_value );
+    voltage = (int32_t)ACE_convert_to_mV( channel_handle, sample_value );
     
     /* Tk = (V * 10^3) / 2.5  */
     /* Tc = Tk - 273.15 */
@@ -620,7 +788,13 @@ uint16_t ACE_convert_mV_to_adc_value
     }
     else
     {
-        sample_value = (uint16_t)((voltage * (g_ace_adc_config[adc_id].adc_resolution - 1)) / g_ace_adc_config[adc_id].va_ref);
+        uint32_t va_ref;
+        uint32_t adc_resolution;
+        
+        va_ref = g_ace_adc_config[adc_id].va_ref;
+        adc_resolution = g_ace_adc_config[adc_id].adc_resolution;
+        
+        sample_value = (uint16_t)((voltage * (adc_resolution - 1u)) / va_ref);
     }
     
     return sample_value;
@@ -683,32 +857,35 @@ uint16_t ACE_convert_from_mV
         {
             adc_voltage = 0u;
         }
+        sample_value = (uint16_t)((adc_voltage * PPE_SAMPLES_RESOLUTION) / g_ace_adc_config[adc_id].va_ref);
     }
     else
     {
         uint8_t apbs_idx;
         uint8_t gdec;
+        int32_t range;
+        int32_t actual_afe_voltage;
+        uint32_t gain;
+        uint32_t va_ref;
+        uint32_t ppe_resolution;
         
         apbs_idx = abps_idx_lut[channel_id];
         gdec = g_gdec_lut[apbs_idx];
-        voltage = voltage + apbs_range[gdec];
-        if (voltage > 0)
-        {
-	        adc_voltage = (uint32_t)voltage;
-	        adc_voltage = adc_voltage / (uint8_t)apbs_gain_lut[gdec];
-        }
-        else
-        {
-        	adc_voltage = 0;
-        }
+
+        ppe_resolution = (uint32_t)PPE_SAMPLES_RESOLUTION;
+        gain = (uint32_t)apbs_gain_lut[gdec];
+        range = (int32_t)apbs_range[gdec];
+        va_ref = (uint32_t)g_ace_adc_config[adc_id].va_ref;
+        
+        actual_afe_voltage = range - voltage;
+        sample_value = (uint16_t)(ppe_resolution - ((((ppe_resolution * (uint32_t)actual_afe_voltage) / gain) / va_ref)));
     }
-    
-    sample_value = (uint16_t)((adc_voltage * PPE_SAMPLES_RESOLUTION) / g_ace_adc_config[adc_id].va_ref);
-    
+        
     if (sample_value > MAX_PPE_SAMPLE_VALUE)
     {
         sample_value = MAX_PPE_SAMPLE_VALUE;
     }
+    
     return sample_value;
 }
 
@@ -721,16 +898,80 @@ uint16_t ACE_convert_from_mA
     uint32_t                current
 )
 {
-    uint16_t sample_value;
+    uint16_t sample_value = 0u;
     uint32_t voltage;
     uint32_t resistor = 1u;
+    adc_channel_id_t channel_id;
     
-    voltage = current * 50u * resistor;
-    sample_value = convert_mV_to_ppe_value( channel_handle, voltage );
+    ASSERT((int32_t)channel_handle < ACE_NB_OF_INPUT_CHANNELS);
     
-    if (sample_value > MAX_PPE_SAMPLE_VALUE)
+    channel_id = g_ace_channel_desc_table[channel_handle].signal_id;
+    ASSERT((int32_t)channel_id < sizeof(channel_type_lut));
+    
+    if(CURRENT_CHANNEL == channel_type_lut[channel_id])
     {
-        sample_value = MAX_PPE_SAMPLE_VALUE;
+        uint8_t current_monitor_idx;
+        
+        current_monitor_idx
+            = (((uint8_t)channel_id & 0x04u) >> 2u) + (((uint8_t)channel_id & 0x30u) >> 3u);
+    
+        if(current_monitor_idx < (uint8_t)ACE_NB_OF_CURRENT_MONITORS)
+        {
+            resistor = g_ace_current_resistors[current_monitor_idx];
+            /* 
+             * Keep in mind the multiply by 50 gain within the current monitor.
+             * Therefore the voltage seen on the ADC input is:
+             *      V = (I * 50 * R) / 1000.
+             */
+            voltage = (current * resistor) / 20u;
+            sample_value = convert_mV_to_ppe_value( channel_handle, voltage );
+            
+            if (sample_value > MAX_PPE_SAMPLE_VALUE)
+            {
+                sample_value = MAX_PPE_SAMPLE_VALUE;
+            }
+        }
+    }
+    return sample_value;
+}
+
+/*-------------------------------------------------------------------------*//**
+ *
+ */
+uint16_t ACE_convert_from_uA
+(
+    ace_channel_handle_t    channel_handle,
+    uint32_t                current
+)
+{
+    uint16_t sample_value = 0u;
+    uint32_t voltage;
+    uint32_t resistor = 1u;
+    adc_channel_id_t channel_id;
+    
+    ASSERT((int32_t)channel_handle < ACE_NB_OF_INPUT_CHANNELS);
+    
+    channel_id = g_ace_channel_desc_table[channel_handle].signal_id;
+    ASSERT((int32_t)channel_id < sizeof(channel_type_lut));
+    
+    if(CURRENT_CHANNEL == channel_type_lut[channel_id])
+    {
+        uint8_t current_monitor_idx;
+        
+        current_monitor_idx
+            = (((uint8_t)channel_id & 0x04u) >> 2u) + (((uint8_t)channel_id & 0x30u) >> 3u);
+    
+        if(current_monitor_idx < (uint8_t)ACE_NB_OF_CURRENT_MONITORS)
+        {
+            resistor = g_ace_current_resistors[current_monitor_idx];
+            voltage = (current * resistor) / 20000u;
+            sample_value = convert_mV_to_ppe_value( channel_handle, voltage );
+            
+            if (sample_value > MAX_PPE_SAMPLE_VALUE)
+            {
+                sample_value = MAX_PPE_SAMPLE_VALUE;
+            }
+        }
     }
     return sample_value;
 }
@@ -816,7 +1057,7 @@ uint16_t ACE_translate_pdma_value
 {
     uint16_t ppe_value;
       
-    ppe_value = (pdma_value >> 8u) & 0xFFFFu;
+    ppe_value = (uint16_t)((pdma_value >> 8u) & 0xFFFFu);
     if ( channel_id != 0 )
     {
         *channel_id = (adc_channel_id_t)((pdma_value >> 24u) & 0xFFu);

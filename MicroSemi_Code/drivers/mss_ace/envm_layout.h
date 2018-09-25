@@ -19,17 +19,6 @@ extern "C" {
  */
 #define MTD_ADDRESS 0x60080010
 
-/*==============================================================================
- * MSS configuration location.
- */
-#define MSS_CONFIG_ADDRESS        0x60081618
-
-/*==============================================================================
- * Analog configuration location and size.
- */
-#define ANALOG_CONFIG_ADDRESS     0x60081600
-#define ANALOG_CONFIG_BYTE_SIZE   24
-
 #ifdef __cplusplus
 }
 #endif

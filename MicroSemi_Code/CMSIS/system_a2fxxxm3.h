@@ -3,8 +3,8 @@
  * 
  *  SmartFusion A2FxxxM3 CMSIS system initialization.
  *
- * SVN $Revision: 2064 $
- * SVN $Date: 2010-01-27 15:05:58 +0000 (Wed, 27 Jan 2010) $
+ * SVN $Revision: 3097 $
+ * SVN $Date: 2010-10-15 16:36:15 +0100 (Fri, 15 Oct 2010) $
  */
 
 #ifndef __SYSTEM_A2FM3FXX_H__
@@ -16,7 +16,7 @@ extern "C" {
 
 /* Standard CMSIS global variables. */
 extern uint32_t SystemFrequency;    /*!< System Clock Frequency (Core Clock) */
-extern uint32_t SystemCoreClock;          /*!< System Clock Frequency (Core Clock) */
+extern uint32_t SystemCoreClock;    /*!< System Clock Frequency (Core Clock) */
 
 /* SmartFusion specific clocks. */
 extern uint32_t g_FrequencyPCLK0;   /*!< Clock frequency of APB bus 0. */  

@@ -20,6 +20,12 @@
  * CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
  *
  ******************************************************************************/
+/*******************************************************************************
+ * Microsemi SoC Products Group SVN revision number for the purpose of tracking
+ * changes done to original file supplied by ARM:
+ * SVN $Revision: 6671 $
+ * SVN $Date: 2014-07-04 12:15:22 +0100 (Fri, 04 Jul 2014) $
+ ******************************************************************************/
 
 #include <stdint.h>
 
@@ -263,11 +269,13 @@ __ASM void __set_CONTROL(uint32_t control)
  *
  * Return the actual process stack pointer
  */
+#if (__VER__ < 6020000)
 uint32_t __get_PSP(void)
 {
   __ASM("mrs r0, psp");
   __ASM("bx lr");
 }
+#endif
 
 /**
  * @brief  Set the Process Stack Pointer
@@ -277,11 +285,13 @@ uint32_t __get_PSP(void)
  * Assign the value ProcessStackPointer to the MSP 
  * (process stack pointer) Cortex processor register
  */
+#if (__VER__ < 6020000)
 void __set_PSP(uint32_t topOfProcStack)
 {
   __ASM("msr psp, r0");
   __ASM("bx lr");
 }
+#endif
 
 /**
  * @brief  Return the Main Stack Pointer
@@ -291,11 +301,13 @@ void __set_PSP(uint32_t topOfProcStack)
  * Return the current value of the MSP (main stack pointer)
  * Cortex processor register
  */
+#if (__VER__ < 6020000)
 uint32_t __get_MSP(void)
 {
   __ASM("mrs r0, msp");
   __ASM("bx lr");
 }
+#endif
 
 /**
  * @brief  Set the Main Stack Pointer
@@ -305,11 +317,13 @@ uint32_t __get_MSP(void)
  * Assign the value mainStackPointer to the MSP 
  * (main stack pointer) Cortex processor register
  */
+#if (__VER__ < 6020000)
 void __set_MSP(uint32_t topOfMainStack)
 {
   __ASM("msr msp, r0");
   __ASM("bx lr");
 }
+#endif
 
 /**
  * @brief  Reverse byte order in unsigned short value
@@ -319,11 +333,13 @@ void __set_MSP(uint32_t topOfMainStack)
  *
  * Reverse byte order in unsigned short value
  */
+#if (__VER__ < 6020000)
 uint32_t __REV16(uint16_t value)
 {
   __ASM("rev16 r0, r0");
   __ASM("bx lr");
 }
+#endif
 
 /**
  * @brief  Reverse bit order of value
@@ -333,11 +349,13 @@ uint32_t __REV16(uint16_t value)
  *
  * Reverse bit order of value
  */
+#if (__VER__ < 6020000)
 uint32_t __RBIT(uint32_t value)
 {
   __ASM("rbit r0, r0");
   __ASM("bx lr");
 }
+#endif
 
 /**
  * @brief  LDR Exclusive (8 bit)
@@ -347,11 +365,13 @@ uint32_t __RBIT(uint32_t value)
  *
  * Exclusive LDR command for 8 bit values)
  */
+#if (__VER__ < 6020000)
 uint8_t __LDREXB(uint8_t *addr)
 {
   __ASM("ldrexb r0, [r0]");
   __ASM("bx lr"); 
 }
+#endif
 
 /**
  * @brief  LDR Exclusive (16 bit)
@@ -361,11 +381,13 @@ uint8_t __LDREXB(uint8_t *addr)
  *
  * Exclusive LDR command for 16 bit values
  */
+#if (__VER__ < 6020000)
 uint16_t __LDREXH(uint16_t *addr)
 {
   __ASM("ldrexh r0, [r0]");
   __ASM("bx lr");
 }
+#endif
 
 /**
  * @brief  LDR Exclusive (32 bit)
@@ -390,11 +412,13 @@ uint32_t __LDREXW(uint32_t *addr)
  *
  * Exclusive STR command for 8 bit values
  */
+#if (__VER__ < 6020000)
 uint32_t __STREXB(uint8_t value, uint8_t *addr)
 {
   __ASM("strexb r0, r0, [r1]");
   __ASM("bx lr");
 }
+#endif
 
 /**
  * @brief  STR Exclusive (16 bit)
@@ -405,11 +429,13 @@ uint32_t __STREXB(uint8_t value, uint8_t *addr)
  *
  * Exclusive STR command for 16 bit values
  */
+#if (__VER__ < 6020000)
 uint32_t __STREXH(uint16_t value, uint16_t *addr)
 {
   __ASM("strexh r0, r0, [r1]");
   __ASM("bx lr");
 }
+#endif
 
 /**
  * @brief  STR Exclusive (32 bit)
@@ -733,7 +759,7 @@ uint32_t __STREXB(uint8_t value, uint8_t *addr)
 {
    uint32_t result=0;
   
-   __ASM volatile ("strexb %0, %2, [%1]" : "=r" (result) : "r" (addr), "r" (value) );
+   __ASM volatile ("strexb %0, %2, [%1]" : "=&r" (result) : "r" (addr), "r" (value) );
    return(result);
 }
 
@@ -750,7 +776,7 @@ uint32_t __STREXH(uint16_t value, uint16_t *addr)
 {
    uint32_t result=0;
   
-   __ASM volatile ("strexh %0, %2, [%1]" : "=r" (result) : "r" (addr), "r" (value) );
+   __ASM volatile ("strexh %0, %2, [%1]" : "=&r" (result) : "r" (addr), "r" (value) );
    return(result);
 }
 

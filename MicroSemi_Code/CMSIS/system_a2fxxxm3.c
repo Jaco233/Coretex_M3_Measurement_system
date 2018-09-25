@@ -3,8 +3,8 @@
  * 
  *  SmartFusion A2FxxxM3 CMSIS system initialization.
  *
- * SVN $Revision: 2069 $
- * SVN $Date: 2010-01-28 00:23:48 +0000 (Thu, 28 Jan 2010) $
+ * SVN $Revision: 3692 $
+ * SVN $Date: 2011-06-20 10:29:56 +0100 (Mon, 20 Jun 2011) $
  */
 #include "a2fxxxm3.h"
 #include "mss_assert.h"
@@ -15,8 +15,8 @@
 /*
  * SmartFusion Microcontroller Subsystem FLCK frequency.
  * The value of SMARTFUSION_FCLK_FREQ is used to report the system's clock
- * frequency in system's which either do not use the Actel System Boot or
- * a version of the Actel System Boot older than 1.3.1. In eitehr of these cases
+ * frequency in systems which either do not use the Actel System Boot or
+ * a version of the Actel System Boot older than 1.3.1. In either of these cases
  * SMARTFUSION_FCLK_FREQ should be defined in the projects settings to reflect
  * the FCLK frequency selected in the Libero MSS configurator.
  * Systems using the Actel System Boot version 1.3.1 or later do not require this
@@ -55,12 +55,12 @@
  * pages and the version of that system boot executable and associated
  * configuration data.
  */
-#define SYSBOOT_KEY_ADDR        (uint32_t *)0x6008081C
-#define SYSBOOT_KEY_VALUE       0x4C544341uL
-#define SYSBOOT_VERSION_ADDR    (uint32_t *)0x60080840
-#define SYSBOOT_1_3_FCLK_ADDR   (uint32_t *)0x6008162C
-#define SYSBOOT_2_x_FCLK_ADDR   (uint32_t *)0x60081EAC
-
+#define SYSBOOT_KEY_ADDR        	(uint32_t *)0x6008081C
+#define SYSBOOT_KEY_VALUE       	0x4C544341uL
+#define SYSBOOT_VERSION_ADDR    	(uint32_t *)0x60080840
+#define SYSBOOT_1_3_FCLK_ADDR   	(uint32_t *)0x6008162C
+#define SYSBOOT_2_x_FCLK_ADDR   	(uint32_t *)0x60081EAC
+#define SYSBOOT_A2F060_FCLK_ADDR	(uint32_t *)0x6001EF2C
 /*
  * The system boot version is stored in the least significant 24 bits of a word.
  * The FCLK is stored in eNVM from version 1.3.1 of the system boot. We expect
@@ -72,6 +72,15 @@
 #define SYSBOOT_VERSION_2_X     0x00020000uL
 #define MAX_SYSBOOT_VERSION     0x00030000uL
 
+/*
+ * Device IDCODE location related defines. Used to find out which device we are
+ * using.
+ */
+#define IDCODE_LOCATION				(uint32_t *)0x60080230u
+#define IDCODE_DEV_REV_MASK         0xF0000000u
+#define A2F060IFX_ID                0x05A111CFu
+
+
 /* Standard CMSIS global variables. */
 uint32_t SystemFrequency = SMARTFUSION_FCLK_FREQ;          /*!< System Clock Frequency (Core Clock) */
 uint32_t SystemCoreClock = SMARTFUSION_FCLK_FREQ;          /*!< System Clock Frequency (Core Clock) */
@@ -80,16 +89,21 @@ uint32_t SystemCoreClock = SMARTFUSION_FCLK_FREQ;          /*!< System Clock Fre
 uint32_t g_FrequencyPCLK0 = (SMARTFUSION_FCLK_FREQ / RESET_PCLK0_DIV);      /*!< Clock frequency of APB bus 0. */  
 uint32_t g_FrequencyPCLK1 = (SMARTFUSION_FCLK_FREQ / RESET_PCLK1_DIV);      /*!< Clock frequency of APB bus 1. */
 uint32_t g_FrequencyACE = (SMARTFUSION_FCLK_FREQ / RESET_ACE_DIV);          /*!< Clock frequency of Analog Compute Engine. */
-uint32_t g_FrequencyFPGA = (SMARTFUSION_FCLK_FREQ / RESET_FPGA_CLK_DIV);    /*!< Clock frequecny of FPGA fabric */
+uint32_t g_FrequencyFPGA = (SMARTFUSION_FCLK_FREQ / RESET_FPGA_CLK_DIV);    /*!< Clock frequency of FPGA fabric */
 
 /* Local functions */
 static uint32_t GetSystemClock( void );
 
 /***************************************************************************//**
- * See system_a2fm3fxxx.h for details.
+ * See system_a2fxxxm3f.h for details.
  */
 void SystemInit(void)
 {
+    /*
+     * Do not make use of global variables or make any asumptions regarding
+     * memory content if modifying this function. The memory content has not been
+     * initialised by the time this function is called by the start-up code.
+     */
 }
 
 /***************************************************************************//**
@@ -148,8 +162,17 @@ uint32_t GetSystemClock( void )
     uint32_t fclk = 0uL;
     
     uint32_t * p_sysboot_key = SYSBOOT_KEY_ADDR;
-    
-    if ( SYSBOOT_KEY_VALUE == *p_sysboot_key )
+    uint32_t * p_idcode = IDCODE_LOCATION;
+    uint32_t idcode;
+	
+    idcode = *p_idcode & ~IDCODE_DEV_REV_MASK;
+	
+    if ( A2F060IFX_ID == idcode )
+    {
+        uint32_t *p_fclk = SYSBOOT_A2F060_FCLK_ADDR;
+        fclk = *p_fclk;
+    }
+    else if ( SYSBOOT_KEY_VALUE == *p_sysboot_key )
     {
         /* Actel system boot programmed, check if it has the FCLK value stored. */
         uint32_t *p_sysboot_version = SYSBOOT_VERSION_ADDR;

@@ -7,8 +7,8 @@
  * modified to cater for project specific requirements regarding the way
  * assertions are handled.
  *
- * SVN $Revision: 1676 $
- * SVN $Date: 2009-12-02 16:47:03 +0000 (Wed, 02 Dec 2009) $
+ * SVN $Revision: 2454 $
+ * SVN $Date: 2010-03-16 15:20:09 +0000 (Tue, 16 Mar 2010) $
  */
 #ifndef __MSS_ASSERT_H_
 #define __MSS_ASSERT_H_
@@ -35,13 +35,26 @@
     
 #endif  /* NDEBUG */
 
-#else
+#elif defined ( __ICCARM__ )
 /*
- * IAR Embedded Workbench or Keil assertion handling.
+ * IAR Embedded Workbench assertion handling.
  * Call C library assert function which should result in error message
  * displayed in debugger.
  */
 #define ASSERT(X)   assert(X)
+
+#else
+/*
+ * Keil assertion handling.
+ * Call C library assert function which should result in error message
+ * displayed in debugger.
+ */
+
+#ifndef __MICROLIB
+  #define ASSERT(X)   assert(X)
+#else
+  #define ASSERT(X)
+#endif
 
 #endif
 

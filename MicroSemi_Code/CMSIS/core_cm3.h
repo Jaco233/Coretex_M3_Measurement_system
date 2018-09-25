@@ -20,6 +20,12 @@
  * CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
  *
  ******************************************************************************/
+/*******************************************************************************
+ * Microsemi SoC Products Group SVN revision number for the purpose of tracking
+ * changes done to original file supplied by ARM:
+ * SVN $Revision: 4048 $
+ * SVN $Date: 2011-12-06 16:05:56 +0000 (Tue, 06 Dec 2011) $
+ ******************************************************************************/
 
 #ifndef __CM3_CORE_H__
 #define __CM3_CORE_H__
@@ -1081,7 +1087,9 @@ static __INLINE  void __CLREX()                   { __ASM ("clrex"); }
  *
  * Return the actual process stack pointer
  */
+#if (__VER__ < 6020000)
 extern uint32_t __get_PSP(void);
+#endif
 
 /**
  * @brief  Set the Process Stack Pointer
@@ -1091,7 +1099,9 @@ extern uint32_t __get_PSP(void);
  * Assign the value ProcessStackPointer to the MSP 
  * (process stack pointer) Cortex processor register
  */
+#if (__VER__ < 6020000)
 extern void __set_PSP(uint32_t topOfProcStack);
+#endif
 
 /**
  * @brief  Return the Main Stack Pointer
@@ -1101,7 +1111,9 @@ extern void __set_PSP(uint32_t topOfProcStack);
  * Return the current value of the MSP (main stack pointer)
  * Cortex processor register
  */
+#if (__VER__ < 6020000)
 extern uint32_t __get_MSP(void);
+#endif
 
 /**
  * @brief  Set the Main Stack Pointer
@@ -1111,7 +1123,9 @@ extern uint32_t __get_MSP(void);
  * Assign the value mainStackPointer to the MSP 
  * (main stack pointer) Cortex processor register
  */
+#if (__VER__ < 6020000)
 extern void __set_MSP(uint32_t topOfMainStack);
+#endif
 
 /**
  * @brief  Reverse byte order in unsigned short value
@@ -1121,7 +1135,9 @@ extern void __set_MSP(uint32_t topOfMainStack);
  *
  * Reverse byte order in unsigned short value
  */
+#if (__VER__ < 6020000)
 extern uint32_t __REV16(uint16_t value);
+#endif
 
 /**
  * @brief  Reverse bit order of value
@@ -1131,7 +1147,9 @@ extern uint32_t __REV16(uint16_t value);
  *
  * Reverse bit order of value
  */
+#if (__VER__ < 6020000)
 extern uint32_t __RBIT(uint32_t value);
+#endif
 
 /**
  * @brief  LDR Exclusive (8 bit)
@@ -1141,7 +1159,9 @@ extern uint32_t __RBIT(uint32_t value);
  *
  * Exclusive LDR command for 8 bit values)
  */
+#if (__VER__ < 6020000)
 extern uint8_t __LDREXB(uint8_t *addr);
+#endif
 
 /**
  * @brief  LDR Exclusive (16 bit)
@@ -1151,7 +1171,9 @@ extern uint8_t __LDREXB(uint8_t *addr);
  *
  * Exclusive LDR command for 16 bit values
  */
+#if (__VER__ < 6020000)
 extern uint16_t __LDREXH(uint16_t *addr);
+#endif
 
 /**
  * @brief  LDR Exclusive (32 bit)
@@ -1172,7 +1194,9 @@ extern uint32_t __LDREXW(uint32_t *addr);
  *
  * Exclusive STR command for 8 bit values
  */
+#if (__VER__ < 6020000)
 extern uint32_t __STREXB(uint8_t value, uint8_t *addr);
+#endif
 
 /**
  * @brief  STR Exclusive (16 bit)
@@ -1183,7 +1207,9 @@ extern uint32_t __STREXB(uint8_t value, uint8_t *addr);
  *
  * Exclusive STR command for 16 bit values
  */
+#if (__VER__ < 6020000)
 extern uint32_t __STREXH(uint16_t value, uint16_t *addr);
+#endif
 
 /**
  * @brief  STR Exclusive (32 bit)

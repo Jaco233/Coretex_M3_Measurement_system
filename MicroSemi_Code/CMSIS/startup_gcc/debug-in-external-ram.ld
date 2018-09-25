@@ -4,8 +4,8 @@
  * SmartFusion/Cortex-M3 linker script for creating a SoftConsole downloadable
  * debug image executing in SmartFusion development board external RAM.
  *
- * SVN $Revision: 2014 $
- * SVN $Date: 2010-01-20 10:37:26 +0000 (Wed, 20 Jan 2010) $
+ * SVN $Revision: 4667 $
+ * SVN $Date: 2012-09-25 17:05:46 +0100 (Tue, 25 Sep 2012) $
  */
 
 OUTPUT_FORMAT("elf32-littlearm", "elf32-bigarm",
@@ -46,6 +46,7 @@ SECTIONS
 {
   .init :
   {
+    __vector_table_vma_base_address = .; 
     *(.isr_vector)
     . = ALIGN(0x4);
   } >esram

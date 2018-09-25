@@ -10,11 +10,14 @@ RM := rm -rf
 -include sources.mk
 -include subdir.mk
 -include WebServer/subdir.mk
+-include MicroSemi_Code/hal/CortexM3/subdir.mk
+-include MicroSemi_Code/hal/CortexM3/GNU/subdir.mk
 -include MicroSemi_Code/drivers_config/mss_ace/subdir.mk
+-include MicroSemi_Code/drivers/mss_uart/subdir.mk
+-include MicroSemi_Code/drivers/mss_i2c/subdir.mk
 -include MicroSemi_Code/drivers/mss_gpio/subdir.mk
 -include MicroSemi_Code/drivers/mss_ethernet_mac/subdir.mk
 -include MicroSemi_Code/drivers/mss_ace/subdir.mk
--include MicroSemi_Code/drivers/I2C/subdir.mk
 -include MicroSemi_Code/CMSIS/subdir.mk
 -include MicroSemi_Code/CMSIS/startup_gcc/subdir.mk
 -include FreeTCPIP/subdir.mk

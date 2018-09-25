@@ -19,11 +19,14 @@ EXECUTABLE :=
 SUBDIRS := \
 . \
 WebServer \
+MicroSemi_Code/hal/CortexM3 \
+MicroSemi_Code/hal/CortexM3/GNU \
 MicroSemi_Code/drivers_config/mss_ace \
+MicroSemi_Code/drivers/mss_uart \
+MicroSemi_Code/drivers/mss_i2c \
 MicroSemi_Code/drivers/mss_gpio \
 MicroSemi_Code/drivers/mss_ethernet_mac \
 MicroSemi_Code/drivers/mss_ace \
-MicroSemi_Code/drivers/I2C \
 MicroSemi_Code/CMSIS \
 MicroSemi_Code/CMSIS/startup_gcc \
 FreeTCPIP \

@@ -1,10 +1,10 @@
 /*******************************************************************************
- * (c) Copyright 2008 Actel Corporation.  All rights reserved.
+ * (c) Copyright 2008-2015 Microsemi Corporation.  All rights reserved.
  * 
  * SmartFusion microcontroller subsystem GPIO bare metal driver implementation.
  *
- * SVN $Revision: 1753 $
- * SVN $Date: 2009-12-11 15:12:18 +0000 (Fri, 11 Dec 2009) $
+ * SVN $Revision: 7837 $
+ * SVN $Date: 2015-09-17 18:03:09 +0530 (Thu, 17 Sep 2015) $
  */
 #include "mss_gpio.h"
 #include "../../CMSIS/mss_assert.h"

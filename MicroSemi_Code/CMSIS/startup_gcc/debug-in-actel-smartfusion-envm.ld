@@ -4,8 +4,8 @@
  * SmartFusion/Cortex-M3 linker script for creating a SoftConsole downloadable
  * debug image executing in SmartFusion internal eNVM.
  *
- * SVN $Revision: 1677 $
- * SVN $Date: 2009-12-02 16:57:29 +0000 (Wed, 02 Dec 2009) $
+ * SVN $Revision: 4669 $
+ * SVN $Date: 2012-09-25 19:34:17 +0100 (Tue, 25 Sep 2012) $
  */
 
 OUTPUT_FORMAT("elf32-littlearm", "elf32-bigarm",
@@ -56,8 +56,8 @@ SECTIONS
 {
   .init :
   {
+    __vector_table_vma_base_address = .;
     *(.isr_vector)
-    *sys_boot.o(.text)
     . = ALIGN(0x4);
   } >romMirror AT>rom
   
@@ -66,7 +66,7 @@ SECTIONS
     CREATE_OBJECT_SYMBOLS
     __text_load = LOADADDR(.text);
     __text_start = .;
-    __vector_table_vma_base_address = .;
+    
     *(.text .text.* .gnu.linkonce.t.*)
     *(.plt)
     *(.gnu.warning)

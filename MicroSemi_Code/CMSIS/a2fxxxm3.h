@@ -7,8 +7,8 @@
  *  This file describes the interrupt assignment and peripheral registers for
  *  the SmartFusion A2FxxxM3 familly of devices. 
  *
- * SVN $Revision: 2331 $
- * SVN $Date: 2010-02-26 12:02:06 +0000 (Fri, 26 Feb 2010) $
+ * SVN $Revision: 4308 $
+ * SVN $Date: 2012-04-26 16:12:20 +0100 (Thu, 26 Apr 2012) $
  */
 #ifndef __A2FXXXM3_H__
 #define __A2FXXXM3_H__
@@ -38,8 +38,8 @@ typedef enum IRQn
 
 /******  SmartFusion specific Interrupt Numbers *********************************************************/
   WdogWakeup_IRQn                 = 0,        /*!< WatchDog wakeup interrupt                            */
-  BrownOut_1_5V_IRQn              = 1,        /*!< Supply dropped below 1.5V                            */
-  BrownOut_3_3V_IRQn              = 2,        /*!< Supply dropped below 1.5V                            */
+  BrownOut_1_5V_IRQn              = 1,        /*!< 1.5V supply dropped below 1.3V                       */
+  BrownOut_3_3V_IRQn              = 2,        /*!< 3.3V Supply dropped below 2.5V                       */
   RTC_Match_IRQn                  = 3,        /*!< RTC match interrupt                                  */
   RTCIF_Pub_IRQn                  = 4,        /*!< RTC interface push button interrupt                  */
   EthernetMAC_IRQn                = 5,        /*!< Ethernet MAC interrupt                               */

@@ -72,7 +72,14 @@
  * The IP address used by the SmartFusion target is configured by the
  * definitions configIP_ADDR0 to configIP_ADDR3, which are located in the
  * FreeRTOSConfig.h header file.
- */
+ */\
+
+ /**************************************************************************/
+ /* Standard Includes */
+ /**************************************************************************/
+#include <stdio.h>
+#include <stdlib.h>
+
 
 /* Kernel includes. */
 #include "FreeRTOS.h"
@@ -81,9 +88,12 @@
 #include "timers.h"
 
 /* Microsemi drivers/libraries includes. */
+#include "a2fxxxm3.h"
 #include "mss_gpio.h"
 #include "mss_timer.h"
+#include "mss_uart.h"
 #include "mss_ace.h"
+
 
 #include "partest.h"
 
@@ -137,6 +147,8 @@ static void prvSetupHardware( void );
 static void prvQueueReceiveTask( void *pvParameters );
 static void prvQueueSendTask( void *pvParameters );
 
+void hyperterminal_task(void *para);
+
 /*
  * The check timer callback function, as described at the top of this file.
  */
@@ -169,6 +181,16 @@ static const char *pcStatusMessage = NULL;
 
 /*-----------------------------------------------------------*/
 
+//float                                 real_voltage_value;
+//float                                 real_current_value;
+//float                                 real_temperature_value_tc;
+uint8_t                               key = 0;
+uint8_t                               rx_size =0;
+//volatile unsigned char                std_menu;
+//volatile unsigned char                inMultimeter;
+
+TaskHandle_t htTaskHndl = NULL;
+
 int main(void)
 {
 	/* Configure the NVIC, LED outputs and button inputs. */
@@ -179,10 +201,11 @@ int main(void)
 
 	if( xQueue != NULL )
 	{
-		/* Start the three application specific demo tasks, as described in the
-		comments at the top of this	file. */
+
 		xTaskCreate( prvQueueReceiveTask, "Rx", configMINIMAL_STACK_SIZE, NULL, mainQUEUE_RECEIVE_TASK_PRIORITY, NULL );
 		xTaskCreate( prvQueueSendTask, "TX", configMINIMAL_STACK_SIZE, NULL, mainQUEUE_SEND_TASK_PRIORITY, NULL );
+
+		xTaskCreate( hyperterminal_task, "hyperterminal_task" ,configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+1, &htTaskHndl);
 
 
 		/* Create the software timer that performs the 'check' functionality,
@@ -317,6 +340,13 @@ static void prvSetupHardware( void )
 	/* Configure the GPIO for the LEDs. */
 	vParTestInitialise();
 
+    MSS_UART_init
+    (
+        &g_mss_uart0,
+        MSS_UART_57600_BAUD,
+        MSS_UART_DATA_8_BITS | MSS_UART_NO_PARITY | MSS_UART_ONE_STOP_BIT
+    );
+
 	/* ACE Initialization */
 	ACE_init();
 
@@ -402,3 +432,15 @@ unsigned long ulGetRunTimeCounterValue( void )
 	return 0UL;
 }
 
+
+void hyperterminal_task(void *para)
+{
+    printf( "\n\r********* Welcome to the Measurement System  *********\n\r" );
+//    while(1)
+//    {
+//        printf( "\n\r");
+//        printf( "********* My first Uart **************\n\r" );
+//        printf( "********* 0.  Multimeter *********************\n\r" );
+//        printf( "\n\r");
+//    }
+}
