@@ -399,22 +399,6 @@ const unsigned long ulMax32BitValue = 0xffffffffUL;
 
 unsigned long ulGetRunTimeCounterValue( void )
 {
-unsigned long long ullCurrentValue;
-const unsigned long long ulMax64BitValue = 0xffffffffffffffffULL;
-unsigned long *pulHighWord, *pulLowWord;
-
-	pulHighWord = ( unsigned long * ) &ullCurrentValue;
-	pulLowWord = pulHighWord++;
-
-	MSS_TIM64_get_current_value( ( uint32_t * ) pulHighWord, ( uint32_t * ) pulLowWord );
-
-	/* Convert the down count into an upcount. */
-	ullCurrentValue = ulMax64BitValue - ullCurrentValue;
-
-	/* Scale to a 32bit number of suitable frequency. */
-	ullCurrentValue >>= 13;
-
-	/* Just return 32 bits. */
-	return ( unsigned long ) ullCurrentValue;
+	return 0UL;
 }
 
