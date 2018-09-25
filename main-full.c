@@ -32,21 +32,15 @@
  *
  * The main() Function:
  * main() creates two demo specific software timers, one demo specific queue,
- * and three demo specific tasks.  It then creates a whole host of 'standard
- * demo' tasks/queues/semaphores, before starting the scheduler.  The demo
- * specific tasks and timers are described in the comments here.  The standard
- * demo tasks are described on the FreeRTOS.org web site.
- *
- * The standard demo tasks provide no specific functionality.  They are
- * included to both test the FreeRTOS port, and provide examples of how the
- * various FreeRTOS API functions can be used.
+ * and three demo specific tasks.  Then stars the scheduler.  The demo
+ * specific tasks and timers are described in the comments here.
  *
  * The Demo Specific Queue Send Task:
  * The queue send task is implemented by the prvQueueSendTask() function in
  * this file.  prvQueueSendTask() sits in a loop that causes it to repeatedly
- * block for 200 milliseconds, before sending the value 100 to the queue that
+ * block for x milliseconds, before sending the value 100 to the queue that
  * was created within main().  Once the value is sent, the task loops back
- * around to block for another 200 milliseconds.
+ * around to block for another x milliseconds.
  *
  * The Demo Specific Queue Receive Task:
  * The queue receive task is implemented by the prvQueueReceiveTask() function
@@ -59,29 +53,16 @@
  * available on the queue.  The queue receive task will only leave the Blocked
  * state when the queue send task writes to the queue.  As the queue send task
  * writes to the queue every 200 milliseconds, the queue receive task leaves
- * the Blocked state every 200 milliseconds, and therefore toggles the LED
- * every 200 milliseconds.
+ * the Blocked state every x milliseconds, and therefore toggles the LED
+ * every x milliseconds.
  *
- *
- * The Demo Specific LED Software Timer and the Button Interrupt:
- * The user button SW1 is configured to generate an interrupt each time it is
- * pressed.  The interrupt service routine switches an LED on, and resets the
- * LED software timer.  The LED timer has a 5000 millisecond (5 second) period,
- * and uses a callback function that is defined to just turn the LED off again.
- * Therefore, pressing the user button will turn the LED on, and the LED will
- * remain on until a full five seconds pass without the button being pressed.
  *
  * The Demo Specific "Check" Callback Function:
  * This is called each time the 'check' timer expires.  The check timer
  * callback function inspects all the standard demo tasks to see if they are
  * all executing as expected.  The check timer is initially configured to
  * expire every three seconds, but will shorted this to every 500ms if an error
- * is ever discovered.  The check timer callback toggles the LED defined by
- * the mainCHECK_LED definition each time it executes.  Therefore, if LED
- * mainCHECK_LED is toggling every three seconds, then no error have been found.
- * If LED mainCHECK_LED is toggling every 500ms, then at least one errors has
- * been found.  The task in which the error was discovered is displayed at the
- * bottom of the "task stats" page that is served by the embedded web server.
+ * is ever discovered.
  *
  * The Demo Specific Idle Hook Function:
  * The idle hook function demonstrates how to query the amount of FreeRTOS heap
@@ -90,8 +71,7 @@
  * The Web Server Task:
  * The IP address used by the SmartFusion target is configured by the
  * definitions configIP_ADDR0 to configIP_ADDR3, which are located in the
- * FreeRTOSConfig.h header file.  See the documentation page for this example
- * on the http://www.FreeRTOS.org web site for further connection information.
+ * FreeRTOSConfig.h header file.
  */
 
 /* Kernel includes. */
@@ -105,7 +85,6 @@
 #include "mss_timer.h"
 #include "mss_ace.h"
 
-/* Common demo includes. */
 #include "partest.h"
 
 /* Priorities at which the tasks are created. */
@@ -114,7 +93,7 @@
 
 /* The rate at which data is sent to the queue, specified in milliseconds, and
 converted to ticks using the portTICK_PERIOD_MS constant. */
-#define mainQUEUE_SEND_FREQUENCY_MS			( 200 / portTICK_PERIOD_MS )
+#define mainQUEUE_SEND_FREQUENCY_MS			( 1000 / portTICK_PERIOD_MS )
 
 /* The number of items the queue can hold.  This is 1 as the receive task
 will remove items as they are added, meaning the send task should always find
@@ -124,14 +103,8 @@ the queue empty. */
 /* The LED toggled by the check timer callback function. */
 #define mainCHECK_LED				0x07UL
 
-/* The LED turned on by the button interrupt, and turned off by the LED timer. */
-#define mainTIMER_CONTROLLED_LED	0x06UL
-
 /* The LED toggle by the queue receive task. */
 #define mainTASK_CONTROLLED_LED		0x05UL
-
-/* Constant used by the standard timer test functions. */
-#define mainTIMER_TEST_PERIOD		( 50 )
 
 /* Priorities used by the various different tasks. */
 #define mainuIP_TASK_PRIORITY		( tskIDLE_PRIORITY + 2 )
@@ -145,14 +118,9 @@ have been reported by any of the standard demo tasks. */
 #define mainCHECK_TIMER_PERIOD_MS	( 3000UL / portTICK_PERIOD_MS )
 
 
-
 /* The period at which the check timer will expire, in ms, if an error has been
 reported in one of the standard demo tasks. */
 #define mainERROR_CHECK_TIMER_PERIOD_MS ( 500UL / portTICK_PERIOD_MS )
-
-/* The LED will remain on until the button has not been pushed for a full
-5000ms. */
-#define mainLED_TIMER_PERIOD_MS		( 5000UL / portTICK_PERIOD_MS )
 
 /* A zero block time. */
 #define mainDONT_BLOCK				( 0UL )
@@ -170,12 +138,6 @@ static void prvQueueReceiveTask( void *pvParameters );
 static void prvQueueSendTask( void *pvParameters );
 
 /*
- * The LED timer callback function.  This does nothing but switch the red LED
- * off.
- */
-static void prvLEDTimerCallback( TimerHandle_t xTimer );
-
-/*
  * The check timer callback function, as described at the top of this file.
  */
 static void prvCheckTimerCallback( TimerHandle_t xTimer );
@@ -191,16 +153,10 @@ void vParTestSetLEDFromISR( unsigned portBASE_TYPE uxLED, signed portBASE_TYPE x
  */
 extern void vuIP_Task( void *pvParameters );
 
-
-
 /*-----------------------------------------------------------*/
 
 /* The queue used by both application specific demo tasks defined in this file. */
 static QueueHandle_t xQueue = NULL;
-
-/* The LED software timer.  This uses prvLEDTimerCallback() as it's callback
-function. */
-static TimerHandle_t xLEDTimer = NULL;
 
 /* The check timer.  This uses prvCheckTimerCallback() as it's callback
 function. */
@@ -229,16 +185,6 @@ int main(void)
 		xTaskCreate( prvQueueSendTask, "TX", configMINIMAL_STACK_SIZE, NULL, mainQUEUE_SEND_TASK_PRIORITY, NULL );
 
 
-		/* Create the software timer that is responsible for turning off the LED
-		if the button is not pushed within 5000ms, as described at the top of
-		this file. */
-		xLEDTimer = xTimerCreate( 	"LEDTimer", 					/* A text name, purely to help debugging. */
-									( mainLED_TIMER_PERIOD_MS ),	/* The timer period, in this case 5000ms (5s). */
-									pdFALSE,						/* This is a one shot timer, so xAutoReload is set to pdFALSE. */
-									( void * ) 0,					/* The ID is not used, so can be set to anything. */
-									prvLEDTimerCallback				/* The callback function that switches the LED off. */
-								);
-
 		/* Create the software timer that performs the 'check' functionality,
 		as described at the top of this file. */
 		xCheckTimer = xTimerCreate( "CheckTimer",					/* A text name, purely to help debugging. */
@@ -264,15 +210,13 @@ int main(void)
 }
 /*-----------------------------------------------------------*/
 
+
+
+
 static void prvCheckTimerCallback( TimerHandle_t xTimer )
 {
 	/* Check the standard demo tasks are running without error.   Latch the
 	latest reported error in the pcStatusMessage character pointer. */
-
-	/* Toggle the check LED to give an indication of the system status.  If
-	the LED toggles every mainCHECK_TIMER_PERIOD_MS milliseconds then
-	everything is ok.  A faster toggle indicates an error. */
-	vParTestToggleLED( mainCHECK_LED );
 
 	/* Have any errors been latch in pcStatusMessage?  If so, shorten the
 	period of the check timer to mainERROR_CHECK_TIMER_PERIOD_MS milliseconds.
@@ -288,12 +232,7 @@ static void prvCheckTimerCallback( TimerHandle_t xTimer )
 }
 /*-----------------------------------------------------------*/
 
-static void prvLEDTimerCallback( TimerHandle_t xTimer )
-{
-	/* The timer has expired - so no button pushes have occurred in the last
-	five seconds - turn the LED off. */
-	vParTestSetLED( mainTIMER_CONTROLLED_LED, pdFALSE );
-}
+
 /*-----------------------------------------------------------*/
 
 /* The ISR executed when the user button is pushed. */
@@ -301,15 +240,8 @@ void GPIO8_IRQHandler( void )
 {
 portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 
-	/* The button was pushed, so ensure the LED is on before resetting the
-	LED timer.  The LED timer will turn the LED off if the button is not
-	pushed within 5000ms. */
-	vParTestSetLEDFromISR( mainTIMER_CONTROLLED_LED, pdTRUE );
+//DO SOMETHING IF INTERUPTED BY BUTTON ON GPIO8 (SW1)
 
-	/* This interrupt safe FreeRTOS function can be called from this interrupt
-	because the interrupt priority is below the
-	configMAX_SYSCALL_INTERRUPT_PRIORITY setting in FreeRTOSConfig.h. */
-	xTimerResetFromISR( xLEDTimer, &xHigherPriorityTaskWoken );
 
 	/* Clear the interrupt before leaving. */
     MSS_GPIO_clear_irq( MSS_GPIO_8 );
@@ -376,8 +308,6 @@ unsigned long ulReceivedValue;
 }
 /*-----------------------------------------------------------*/
 
-
-/*-----------------------------------------------------------*/
 
 static void prvSetupHardware( void )
 {
