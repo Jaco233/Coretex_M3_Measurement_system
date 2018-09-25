@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>FreeRTOS.org uIP WEB server demo</title>
+  </head>
+  <BODY onLoad="window.setTimeout(&quot;location.href='index.shtml'&quot;,20000)">
+ 
+	<font face="arial">
+	<a href="index.shtml">Task Statsssss</a> <b>|</b> <a href="runtime.shtml">Run Time Stats</a> <b>|</b> <a href="stats.shtml">TCP Stats</a> <b>|</b> <a href="tcp.shtml">Connections</a> <b>|</b> <a href="http://www.freertos.org/">FreeRTOS Homepage</a> <b>|</b> <a href="io.shtml">IO</a> <b>|</b> <a href="logo.jpg">37K jpg</a>
+	<br><p>
+	<hr>
+	<br><p>
+
+	<p>This page is similar to the home page but uses WebSockets for real-time updates.</p>
+	<div class="cover" align="center">
+		<canvas id="chartCanvas" width="512" height="100"></canvas>
+	</div>
+
+	<h2>Task statistics edited</h2>
+	Page will refresh every 2 seconds.<p>
+	<font face="courier"><pre>Task          State  Priority  Stack	#<br>************************************************<br>
+	<!-- %! rtos-stats -->
+	</pre></font>
+	</font>
+
+<script type="text/javascript" src="js/smoothie_min.js"></script>
+  
+ <script>
+	var smoothie = new SmoothieChart({
+	  grid: { strokeStyle:'rgb(125, 0, 0)', fillStyle:'rgb(60, 0, 0)',
+			  lineWidth: 1, millisPerLine: 250, verticalSections: 6, },
+	  labels: { fillStyle:'rgb(60, 0, 0)' }
+	});
+		
+	smoothie.streamTo(document.getElementById("chartCanvas"));
+	
+	var line1 = new TimeSeries();
+	
+
+	setInterval(function() {
+	  line1.append(new Date().getTime(), Math.random());
+	}, 1000);
+
+
+	smoothie.addTimeSeries(line1, {strokeStyle:'rgb(0, 255, 0)', fillStyle:'rgba(0, 255, 0, 0.4)', lineWidth:3 });
+			
+</script>
+
+
+
+
+</body>
+</html>
+
