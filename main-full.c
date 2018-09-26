@@ -147,7 +147,7 @@ static void prvSetupHardware( void );
 static void prvQueueReceiveTask( void *pvParameters );
 static void prvQueueSendTask( void *pvParameters );
 
-void hyperterminal_task(void *para);
+void uart_task(void *para);
 
 /*
  * The check timer callback function, as described at the top of this file.
@@ -191,6 +191,31 @@ uint8_t                               rx_size =0;
 
 TaskHandle_t htTaskHndl = NULL;
 
+
+#define System_logo \
+"\n\r \
+ _______________________________________\n\r \
+/                                       \\n\r \
+|  {###################################}  |\n\r \
+|  {###################################}  |\n\r \
+|  {###################################}  |\n\r \
+|  {###################################}  |\n\r \
+|  {###################################}  |\n\r \
+|  {###################################}  |\n\r \
+|                                         |\n\r \
+|               80  90  100               |\n\r \
+|            70     ^      120            |\n\r \
+|        60 *      /|\       * 140        |\n\r \
+|    55             |              160    |\n\r \
+|                   |                     |\n\r \
+|                   |                     |\n\r \
+|   (O)            (+)              (O)   |\n\r \
+\_______________________________________/"
+
+
+
+
+
 int main(void)
 {
 	/* Configure the NVIC, LED outputs and button inputs. */
@@ -205,7 +230,9 @@ int main(void)
 		xTaskCreate( prvQueueReceiveTask, "Rx", configMINIMAL_STACK_SIZE, NULL, mainQUEUE_RECEIVE_TASK_PRIORITY, NULL );
 		xTaskCreate( prvQueueSendTask, "TX", configMINIMAL_STACK_SIZE, NULL, mainQUEUE_SEND_TASK_PRIORITY, NULL );
 
-		xTaskCreate( hyperterminal_task, "hyperterminal_task" ,configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+1, &htTaskHndl);
+
+
+		//printf( "\n\r********* Welcome to the Measurement System  *********\n\r" );
 
 
 		/* Create the software timer that performs the 'check' functionality,
@@ -219,6 +246,9 @@ int main(void)
 
 		/* Create the web server task. */
 		xTaskCreate( vuIP_Task, "uIP", mainuIP_STACK_SIZE, NULL, mainuIP_TASK_PRIORITY, NULL );
+
+		xTaskCreate( uart_task, "uart_task" ,( unsigned short ) 512 , NULL, tskIDLE_PRIORITY+1, NULL);
+
 
 		/* Start the tasks and timer running. */
 		vTaskStartScheduler();
@@ -433,14 +463,21 @@ unsigned long ulGetRunTimeCounterValue( void )
 }
 
 
-void hyperterminal_task(void *para)
+void uart_task(void *para)
 {
-    printf( "\n\r********* Welcome to the Measurement System  *********\n\r" );
-//    while(1)
-//    {
-//        printf( "\n\r");
-//        printf( "********* My first Uart **************\n\r" );
-//        printf( "********* 0.  Multimeter *********************\n\r" );
-//        printf( "\n\r");
-//    }
+const uint8_t intro[] = "\n\r \
+********* Welcome to the Measurement System  *********\n\r \
+\n\r \
+********* Please select option **************\n\r \
+********* 0.  Multimeter *********************\n\r \
+";
+
+	MSS_UART_polled_tx_string( &g_mss_uart0, (const uint8_t *)System_logo);
+	MSS_UART_polled_tx( &g_mss_uart0, intro, sizeof(intro) );
+
+	for( ;; )
+		{
+
+		}
+
 }

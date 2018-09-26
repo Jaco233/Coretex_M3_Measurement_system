@@ -45,7 +45,7 @@
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/Measurement_System/MicroSemi_Code/CMSIS/startup_gcc}&quot;"/>
 </option>
 <option id="gnu.c.compiler.option.misc.other.1641251270" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -ffunction-sections -fdata-sections" valueType="string"/>
-<option id="gnu.c.compiler.option.preprocessor.def.symbols.855166006" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
+<option id="gnu.c.compiler.option.preprocessor.def.symbols.855166006" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
 <listOptionValue builtIn="false" value="ACTEL_STDIO_THRU_UART"/>
 </option>
 <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.2071150802" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
