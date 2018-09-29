@@ -79,6 +79,7 @@
  /**************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 
 /* Kernel includes. */
@@ -96,6 +97,8 @@
 
 
 #include "partest.h"
+
+#include "uart_helper.h"
 
 /* Priorities at which the tasks are created. */
 #define mainQUEUE_RECEIVE_TASK_PRIORITY		( tskIDLE_PRIORITY + 2 )
@@ -165,6 +168,8 @@ void vParTestSetLEDFromISR( unsigned portBASE_TYPE uxLED, signed portBASE_TYPE x
  */
 extern void vuIP_Task( void *pvParameters );
 
+//extern void uart_string_print(const uint8_t * uart_string);
+
 /*-----------------------------------------------------------*/
 
 /* The queue used by both application specific demo tasks defined in this file. */
@@ -186,8 +191,10 @@ static const char *pcStatusMessage = NULL;
 //float                                 real_temperature_value_tc;
 uint8_t                               key = 0;
 uint8_t                               rx_size =0;
-//volatile unsigned char                std_menu;
-//volatile unsigned char                inMultimeter;
+volatile unsigned char                std_menu;
+volatile unsigned char                inMultimeter;
+
+#define MULTIMETER      '0'
 
 TaskHandle_t htTaskHndl = NULL;
 
@@ -211,9 +218,6 @@ TaskHandle_t htTaskHndl = NULL;
 |                   |                     |\n\r \
 |   (O)            (+)              (O)   |\n\r \
 \_______________________________________/"
-
-
-
 
 
 int main(void)
@@ -247,7 +251,7 @@ int main(void)
 		/* Create the web server task. */
 		xTaskCreate( vuIP_Task, "uIP", mainuIP_STACK_SIZE, NULL, mainuIP_TASK_PRIORITY, NULL );
 
-		xTaskCreate( uart_task, "uart_task" ,( unsigned short ) 512 , NULL, tskIDLE_PRIORITY+1, NULL);
+		xTaskCreate( uart_task, "uart_task" ,configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+1, NULL);
 
 
 		/* Start the tasks and timer running. */
@@ -465,19 +469,52 @@ unsigned long ulGetRunTimeCounterValue( void )
 
 void uart_task(void *para)
 {
-const uint8_t intro[] = "\n\r \
-********* Welcome to the Measurement System  *********\n\r \
-\n\r \
-********* Please select option **************\n\r \
-********* 0.  Multimeter *********************\n\r \
-";
-
-	MSS_UART_polled_tx_string( &g_mss_uart0, (const uint8_t *)System_logo);
-	MSS_UART_polled_tx( &g_mss_uart0, intro, sizeof(intro) );
+	uart_string_print((uint8_t *) "\n********* Welcome to the Measurement System  *********\n\r");
 
 	for( ;; )
 		{
+			uart_string_print((uint8_t *)"\n\r");
+			uart_string_print((uint8_t *) "********* SmartFusion Play Menu **************\n\r" );
+			uart_string_print((uint8_t *) "********* 0.  Multimeter *********************\n\r" );
+			uart_string_print((uint8_t *) "\n");
 
+	        do
+	        {
+	            rx_size = MSS_UART_get_rx(&g_mss_uart0, &key, 1);
+	        }while(rx_size == 0);
+
+	        rx_size = 0;
+	        inMultimeter = 0;
+	        switch(key)
+	        {
+	            case MULTIMETER:
+	            {
+	                //inWebTask = 0;
+	                //inLedTask = 0;
+
+	                std_menu = 0;
+
+	                char voltage_str[20];
+//	                char voltage_val_str[5];
+//	                strcpy(voltage_str, "Voltage: ");
+//	                fprintf(voltage_val_str, "%5.2f", 42.6);
+//	                strcat(voltage_str,voltage_val_str);
+	                gcvt(55.3, 6, voltage_str);
+	                //strcat(voltage_str, " mV");
+
+	                uart_string_print((uint8_t *)voltage_str);
+
+	                break;
+	            }
+
+	            default:  /* If selected key is out of range */
+	            {
+	            	uart_string_print((uint8_t *)"Invalid Key \n\r");
+	            	uart_string_print((uint8_t *)"**** Please Enter Your Choice      ****** \n\r");
+	                break;
+	            }
+
+	        }
 		}
 
 }

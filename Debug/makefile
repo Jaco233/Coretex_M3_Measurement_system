@@ -20,6 +20,7 @@ RM := rm -rf
 -include MicroSemi_Code/drivers/mss_ace/subdir.mk
 -include MicroSemi_Code/CMSIS/subdir.mk
 -include MicroSemi_Code/CMSIS/startup_gcc/subdir.mk
+-include Helpers/subdir.mk
 -include FreeTCPIP/subdir.mk
 -include FreeTCPIP/http_Common/subdir.mk
 -include FreeRTOS_Source/subdir.mk

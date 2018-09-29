@@ -29,6 +29,7 @@ MicroSemi_Code/drivers/mss_ethernet_mac \
 MicroSemi_Code/drivers/mss_ace \
 MicroSemi_Code/CMSIS \
 MicroSemi_Code/CMSIS/startup_gcc \
+Helpers \
 FreeTCPIP \
 FreeTCPIP/http_Common \
 FreeRTOS_Source \
