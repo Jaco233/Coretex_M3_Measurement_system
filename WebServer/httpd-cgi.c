@@ -60,16 +60,12 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-HTTPD_CGI_CALL( file, "file-stats", file_stats );
 HTTPD_CGI_CALL( tcp, "tcp-connections", tcp_stats );
-HTTPD_CGI_CALL( net, "net-stats", net_stats );
-HTTPD_CGI_CALL( rtos, "rtos-stats", rtos_stats );
-HTTPD_CGI_CALL( run, "run-time", run_time );
+HTTPD_CGI_CALL( net, "net-stats", net_stats );;
 HTTPD_CGI_CALL( io, "led-io", led_io );
-
 HTTPD_CGI_CALL( output, "pot-voltage", pot_voltage );
 
-static const struct httpd_cgi_call	*calls[] = { &file, &tcp, &net, &rtos, &run, &io, &output , NULL };
+static const struct httpd_cgi_call	*calls[] = { &tcp, &net, &io, &output , NULL };
 
 /*---------------------------------------------------------------------------*/
 static PT_THREAD( nullfunction ( struct httpd_state *s, char *ptr ) )
@@ -97,24 +93,6 @@ httpd_cgifunction httpd_cgi( char *name )
 	return nullfunction;
 }
 
-/*---------------------------------------------------------------------------*/
-static unsigned short generate_file_stats( void *arg )
-{
-	char	*f = ( char * ) arg;
-	return sprintf( ( char * ) uip_appdata, "%5u", httpd_fs_count(f) );
-}
-
-/*---------------------------------------------------------------------------*/
-static PT_THREAD( file_stats ( struct httpd_state *s, char *ptr ) )
-{
-	PSOCK_BEGIN( &s->sout );
-
-	( void ) PT_YIELD_FLAG;
-
-	PSOCK_GENERATOR_SEND( &s->sout, generate_file_stats, strchr(ptr, ' ') + 1 );
-
-	PSOCK_END( &s->sout );
-}
 
 /*---------------------------------------------------------------------------*/
 static const char	closed[] = /*  "CLOSED",*/ { 0x43, 0x4c, 0x4f, 0x53, 0x45, 0x44, 0 };
@@ -183,41 +161,12 @@ static PT_THREAD( net_stats ( struct httpd_state *s, char *ptr ) )
 }
 
 /*---------------------------------------------------------------------------*/
-extern void vTaskList( char *pcWriteBuffer );
-extern char *pcGetTaskStatusMessage( void );
-static char cCountBuf[128];
-long		lRefreshCount = 0;
-static unsigned short generate_rtos_stats( void *arg )
-{
-	( void ) arg;
-	lRefreshCount++;
-	sprintf( cCountBuf, "<p><br>Refresh count = %d<p><br>%s", ( int ) lRefreshCount, pcGetTaskStatusMessage() );
-	vTaskList( ( char * ) uip_appdata );
-	strcat( uip_appdata, cCountBuf );
-
-	return strlen( uip_appdata );
-}
-
-/*---------------------------------------------------------------------------*/
-static PT_THREAD( rtos_stats ( struct httpd_state *s, char *ptr ) )
-{
-	PSOCK_BEGIN( &s->sout );
-	( void ) ptr;
-	( void ) PT_YIELD_FLAG;
-	PSOCK_GENERATOR_SEND( &s->sout, generate_rtos_stats, NULL );
-	PSOCK_END( &s->sout );
-}
-
-/*---------------------------------------------------------------------------*/
 char			*pcStatus;
 unsigned long	ulString;
 
 static unsigned short generate_io_state( void *arg )
 {
 	extern long lParTestGetLEDState( unsigned long ulLED );
-	unsigned short usRawVoltage;
-	const ace_channel_handle_t xVoltageChannel = ( ace_channel_handle_t ) 0;
-
 	( void ) arg;
 
 	/* Are the dynamically setable LEDs currently on or off? */
@@ -230,36 +179,11 @@ static unsigned short generate_io_state( void *arg )
 		pcStatus = "";
 	}
 
-	usRawVoltage = ( unsigned short ) ACE_get_ppe_sample( xVoltageChannel );
-	sprintf( uip_appdata, "<input type=\"checkbox\" name=\"LED0\" value=\"1\" %s>LED<p><p><p>Raw voltage input is %d", pcStatus, usRawVoltage );
+	sprintf( uip_appdata, "<input type=\"checkbox\" name=\"LED0\" value=\"1\" %s>LED<p>", pcStatus );
 
 	return strlen( uip_appdata );
 }
 
-/*---------------------------------------------------------------------------*/
-extern void vTaskGetRunTimeStats( char *pcWriteBuffer );
-extern unsigned short usMaxJitter;
-static unsigned short generate_runtime_stats( void *arg )
-{
-	( void ) arg;
-	lRefreshCount++;
-	sprintf( cCountBuf, "<p><br>Refresh count = %d", ( int ) lRefreshCount );
-
-	vTaskGetRunTimeStats( ( char * ) uip_appdata );
-	strcat( uip_appdata, cCountBuf );
-
-	return strlen( uip_appdata );
-}
-
-/*---------------------------------------------------------------------------*/
-static PT_THREAD( run_time ( struct httpd_state *s, char *ptr ) )
-{
-	PSOCK_BEGIN( &s->sout );
-	( void ) ptr;
-	( void ) PT_YIELD_FLAG;
-	PSOCK_GENERATOR_SEND( &s->sout, generate_runtime_stats, NULL );
-	PSOCK_END( &s->sout );
-}
 
 /*---------------------------------------------------------------------------*/
 static PT_THREAD( led_io ( struct httpd_state *s, char *ptr ) )
@@ -272,46 +196,6 @@ static PT_THREAD( led_io ( struct httpd_state *s, char *ptr ) )
 }
 
 
-
-
-
-
-//static unsigned short get_pot_voltage( void *arg )
-//{
-//	unsigned short usRawVoltage;
-//	const ace_channel_handle_t xVoltageChannel = ( ace_channel_handle_t ) 0;
-//
-//	usRawVoltage = ( unsigned short ) ACE_get_ppe_sample( xVoltageChannel );
-//	usRawVoltage = usRawVoltage;
-//
-////	return snprintf((char *)uip_appdata, UIP_APPDATA_SIZE,
-////	#if 1
-////
-////	 "setInterval(function() {line1.append(new Date().getTime(), %d);}, 200);"
-////	 "smoothie.addTimeSeries(line1);"
-////	 "</script>"
-////	 "</body>"
-////	 "</html>",usRawVoltage);
-//
-//	sprintf( uip_appdata, "%.2f", usRawVoltage/10000.0 );
-//
-//	return strlen( uip_appdata );
-////#endif
-//}
-
-void delaySecs(int number_of_seconds)
-{
-    // Converting time into milli_seconds
-    int milli_seconds = 1000 * number_of_seconds;
-
-    // Stroing start time
-    clock_t start_time = clock();
-
-    // looping till required time is not acheived
-    while (clock() < start_time + milli_seconds)
-        ;
-}
-
 static PT_THREAD( pot_voltage ( struct httpd_state *s, char *ptr ) )
 {
 
@@ -323,33 +207,10 @@ static PT_THREAD( pot_voltage ( struct httpd_state *s, char *ptr ) )
 
 		static char buf[10];
 
-	//	return snprintf((char *)uip_appdata, UIP_APPDATA_SIZE,
-	//	#if 1
-	//
-	//	 "setInterval(function() {line1.append(new Date().getTime(), %d);}, 200);"
-	//	 "smoothie.addTimeSeries(line1);"
-	//	 "</script>"
-	//	 "</body>"
-	//	 "</html>",usRawVoltage);
-
-
-
-
-	//for( ;; ){
 		PSOCK_BEGIN( &s->sout );
-			//( void ) ptr;
-			//( void ) PT_YIELD_FLAG;
 		snprintf( buf, sizeof(buf), "%.2f", usRawVoltage/10000.0 );
 		PSOCK_SEND_STR( &s->sout, buf);
 		PSOCK_END( &s->sout );
-		//delaySecs(1);
-	//}
-
-
 }
-
-
-
-
 
 /** @} */

@@ -379,7 +379,7 @@ void vApplicationProcessFormInput( char *pcInputString )
 char *c;
 
 	/* Only interested in processing form input if this is the IO page. */
-	c = strstr( pcInputString, "io.shtml" );
+	c = strstr( pcInputString, "control.shtml" );
 
 	if( c )
 	{

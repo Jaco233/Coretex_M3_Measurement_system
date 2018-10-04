@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>Jake's weather station thingy</title>
+</head>
+
+<body>
+    <font face="arial">
+        <a href="index.html">Home</a> <b>|</b> <a href="stats.shtml">TCP Stats</a> <b>|</b> <a href="control.shtml">Control</a> <b>| </b> <a href="tcp.shtml">Connections</a> <b>|</b> <a href="dashboard.shtml">Dashboard</a> <b>
+        <br>
+        <p>
+            <hr>
+            <b>Control the LEDs</b><br>
+        <p>
+
+            <p>Use the check box to turn on or off LED 4, then click "Update IO".</p>
+            <p>
+                <form name="aForm" action="/control.shtml" method="get">
+                    %! led-io
+                    <p>
+                        <input type="submit" value="Update IO">
+                </form>
+                <br>
+                <p>
+    </font>
+
+
+</body>
+
+</html>
