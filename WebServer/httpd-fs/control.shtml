@@ -3,28 +3,50 @@
 
 <head>
     <title>Jake's weather station thingy</title>
+    <meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+    <style media="all" type="text/css">
+        @import "css/styles.css";
+    </style>
 </head>
 
 <body>
-    <font face="arial">
-        <a href="index.html">Home</a> <b>|</b> <a href="stats.shtml">TCP Stats</a> <b>|</b> <a href="control.shtml">Control</a> <b>| </b> <a href="tcp.shtml">Connections</a> <b>|</b> <a href="dashboard.shtml">Dashboard</a> <b>
-        <br>
-        <p>
+    <div id="main">
+        <div id="header">
+            <a href="index.html" class="logo"><img src="img/cloudLogo.png" width="100" height="80" alt="" /></a>
+
+            <ul id="top-navigation">
+                <li><span><span><a href="index.html">Home</a></span></span>
+                </li>
+                <li><span><span><a href="dashboard.shtml">Dashboard</a></span></span>
+                </li>
+                <li class="active"><span><span><a href="control.shtml">Control</a></span></span>
+                </li>
+                <li><span><span><a href="stats.shtml">TCP Stats</a></span></span>
+                </li>
+                <li><span><span><a href="tcp.shtml">Connections</a></span></span>
+                </li>
+            </ul>
+        </div>
+
+        <div id="middle">
+            <h2>Welcome to the IO control panel! </h2>
+
             <hr>
             <b>Control the LEDs</b><br>
-        <p>
-
-            <p>Use the check box to turn on or off LED 4, then click "Update IO".</p>
             <p>
-                <form name="aForm" action="/control.shtml" method="get">
-                    %! led-io
-                    <p>
-                        <input type="submit" value="Update IO">
-                </form>
-                <br>
-                <p>
-    </font>
 
+                <p>Use the check box to turn on or off LED 4, then click "Update IO".</p>
+                <p>
+                    <form name="aForm" action="/control.shtml" method="get">
+                        %! led-io
+                        <p>
+                            <input type="submit" value="Update IO">
+                    </form>
+        </div>
+
+
+        <div id="footer"></div>
+    </div>
 
 </body>
 
