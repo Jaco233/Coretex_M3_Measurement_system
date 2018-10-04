@@ -52,7 +52,10 @@
 #include "mss_ace.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <time.h>
+
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -64,7 +67,9 @@ HTTPD_CGI_CALL( rtos, "rtos-stats", rtos_stats );
 HTTPD_CGI_CALL( run, "run-time", run_time );
 HTTPD_CGI_CALL( io, "led-io", led_io );
 
-static const struct httpd_cgi_call	*calls[] = { &file, &tcp, &net, &rtos, &run, &io, NULL };
+HTTPD_CGI_CALL( output, "pot-voltage", pot_voltage );
+
+static const struct httpd_cgi_call	*calls[] = { &file, &tcp, &net, &rtos, &run, &io, &output , NULL };
 
 /*---------------------------------------------------------------------------*/
 static PT_THREAD( nullfunction ( struct httpd_state *s, char *ptr ) )
@@ -265,5 +270,86 @@ static PT_THREAD( led_io ( struct httpd_state *s, char *ptr ) )
 	PSOCK_GENERATOR_SEND( &s->sout, generate_io_state, NULL );
 	PSOCK_END( &s->sout );
 }
+
+
+
+
+
+
+//static unsigned short get_pot_voltage( void *arg )
+//{
+//	unsigned short usRawVoltage;
+//	const ace_channel_handle_t xVoltageChannel = ( ace_channel_handle_t ) 0;
+//
+//	usRawVoltage = ( unsigned short ) ACE_get_ppe_sample( xVoltageChannel );
+//	usRawVoltage = usRawVoltage;
+//
+////	return snprintf((char *)uip_appdata, UIP_APPDATA_SIZE,
+////	#if 1
+////
+////	 "setInterval(function() {line1.append(new Date().getTime(), %d);}, 200);"
+////	 "smoothie.addTimeSeries(line1);"
+////	 "</script>"
+////	 "</body>"
+////	 "</html>",usRawVoltage);
+//
+//	sprintf( uip_appdata, "%.2f", usRawVoltage/10000.0 );
+//
+//	return strlen( uip_appdata );
+////#endif
+//}
+
+void delaySecs(int number_of_seconds)
+{
+    // Converting time into milli_seconds
+    int milli_seconds = 1000 * number_of_seconds;
+
+    // Stroing start time
+    clock_t start_time = clock();
+
+    // looping till required time is not acheived
+    while (clock() < start_time + milli_seconds)
+        ;
+}
+
+static PT_THREAD( pot_voltage ( struct httpd_state *s, char *ptr ) )
+{
+
+	unsigned short usRawVoltage;
+	const ace_channel_handle_t xVoltageChannel = ( ace_channel_handle_t ) 0;
+
+		usRawVoltage = ( unsigned short ) ACE_get_ppe_sample( xVoltageChannel );
+		usRawVoltage = usRawVoltage;
+
+		static char buf[10];
+
+	//	return snprintf((char *)uip_appdata, UIP_APPDATA_SIZE,
+	//	#if 1
+	//
+	//	 "setInterval(function() {line1.append(new Date().getTime(), %d);}, 200);"
+	//	 "smoothie.addTimeSeries(line1);"
+	//	 "</script>"
+	//	 "</body>"
+	//	 "</html>",usRawVoltage);
+
+
+
+
+	//for( ;; ){
+		PSOCK_BEGIN( &s->sout );
+			//( void ) ptr;
+			//( void ) PT_YIELD_FLAG;
+		snprintf( buf, sizeof(buf), "%.2f", usRawVoltage/10000.0 );
+		PSOCK_SEND_STR( &s->sout, buf);
+		PSOCK_END( &s->sout );
+		//delaySecs(1);
+	//}
+
+
+}
+
+
+
+
 
 /** @} */

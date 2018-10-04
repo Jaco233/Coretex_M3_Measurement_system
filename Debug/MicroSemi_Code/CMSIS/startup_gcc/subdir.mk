@@ -6,8 +6,8 @@
 C_SRCS += \
 ../MicroSemi_Code/CMSIS/startup_gcc/newlib_stubs.c 
 
-S_UPPER_SRCS += \
-../MicroSemi_Code/CMSIS/startup_gcc/startup_a2fxxxm3.S 
+S_SRCS += \
+../MicroSemi_Code/CMSIS/startup_gcc/startup_a2fxxxm3.s 
 
 OBJS += \
 ./MicroSemi_Code/CMSIS/startup_gcc/newlib_stubs.o \
@@ -25,7 +25,7 @@ MicroSemi_Code/CMSIS/startup_gcc/%.o: ../MicroSemi_Code/CMSIS/startup_gcc/%.c
 	@echo 'Finished building: $<'
 	@echo ' '
 
-MicroSemi_Code/CMSIS/startup_gcc/%.o: ../MicroSemi_Code/CMSIS/startup_gcc/%.S
+MicroSemi_Code/CMSIS/startup_gcc/%.o: ../MicroSemi_Code/CMSIS/startup_gcc/%.s
 	@echo 'Building file: $<'
 	@echo 'Invoking: GNU Assembler'
 	arm-none-eabi-gcc -c -mthumb -mcpu=cortex-m3 -specs=bare.specs  -o"$@" "$<"
