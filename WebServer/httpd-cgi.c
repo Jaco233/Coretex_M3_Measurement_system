@@ -60,12 +60,18 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "sensor_task.h"
+
+//extern float getInternalTemp();
+
 HTTPD_CGI_CALL( tcp, "tcp-connections", tcp_stats );
 HTTPD_CGI_CALL( net, "net-stats", net_stats );;
 HTTPD_CGI_CALL( io, "led-io", led_io );
-HTTPD_CGI_CALL( output, "pot-voltage", pot_voltage );
+HTTPD_CGI_CALL( output, "sensor-readings", sensor_readings );
 
 static const struct httpd_cgi_call	*calls[] = { &tcp, &net, &io, &output , NULL };
+
+float                            real_temperature_value_tc;
 
 /*---------------------------------------------------------------------------*/
 static PT_THREAD( nullfunction ( struct httpd_state *s, char *ptr ) )
@@ -196,19 +202,12 @@ static PT_THREAD( led_io ( struct httpd_state *s, char *ptr ) )
 }
 
 
-static PT_THREAD( pot_voltage ( struct httpd_state *s, char *ptr ) )
+static PT_THREAD( sensor_readings ( struct httpd_state *s, char *ptr ) )
 {
-
-	unsigned short usRawVoltage;
-	const ace_channel_handle_t xVoltageChannel = ( ace_channel_handle_t ) 0;
-
-		usRawVoltage = ( unsigned short ) ACE_get_ppe_sample( xVoltageChannel );
-		usRawVoltage = usRawVoltage;
-
-		static char buf[10];
+		static char buf[20];
 
 		PSOCK_BEGIN( &s->sout );
-		snprintf( buf, sizeof(buf), "%.2f", usRawVoltage/10000.0 );
+		snprintf( buf, sizeof(buf), "%.4f,%.4f", get_internal_temp() ,get_pot_voltage());
 		PSOCK_SEND_STR( &s->sout, buf);
 		PSOCK_END( &s->sout );
 }

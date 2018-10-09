@@ -6,18 +6,21 @@
 C_SRCS += \
 ../ParTest.c \
 ../main-full.c \
+../sensor_task.c \
 ../uIP_Task.c \
 ../uart_task.c 
 
 OBJS += \
 ./ParTest.o \
 ./main-full.o \
+./sensor_task.o \
 ./uIP_Task.o \
 ./uart_task.o 
 
 C_DEPS += \
 ./ParTest.d \
 ./main-full.d \
+./sensor_task.d \
 ./uIP_Task.d \
 ./uart_task.d 
 
