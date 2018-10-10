@@ -10,5 +10,8 @@
 
 	float get_internal_temp(void);
 	float get_pot_voltage(void);
+	float get_external_temp(void);
+	//float convert_lm35_result_to_temp(uint16_t adc_result);
+	float get_avg_external_temp(void);
 
 #endif /* SENSOR_TASK_H_ */

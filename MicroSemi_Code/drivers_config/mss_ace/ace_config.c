@@ -2,7 +2,7 @@
 * (c) Copyright  Actel Corporation. All rights reserved.
 *
 *ACE configuration .c file
-*Created by Actel MSS_ACE Configurator Sun Sep 16 11:22:55 2018
+*Created by Actel MSS_ACE Configurator Tue Oct 09 15:14:59 2018
 *
 */
 
@@ -35,7 +35,7 @@ ace_adc_config_t g_ace_adc_config[ACE_NB_OF_ADC] =
 /*-----------------------------------------------------------------------------
 *Current Monitor External Resistor Value ( milli-ohms )
 *---------------------------------------------------------------------------*/
-const uint32_t g_ace_current_resistors[ACE_NB_OF_CURRENT_MONITORS] =
+const uint16_t g_ace_current_resistors[ACE_NB_OF_CURRENT_MONITORS] = 
 {
 	100000,	/*CM0 ( USED AS CURRENT MONITOR ) */
 	1,	/*CM1 ( NOT USED AS CURRENT MONITOR ) */
@@ -59,11 +59,13 @@ const uint8_t g_ace_external_varef_used[ACE_NB_OF_ADC] =
 const uint8_t g_ace_channel_0_name[] = "CurrentMonitor_0";
 const uint8_t g_ace_channel_1_name[] = "VoltageMonitor_0";
 const uint8_t g_ace_channel_2_name[] = "TemperatureMonitor_0";
+const uint8_t g_ace_channel_3_name[] = "ExtAnalogSensor_1";
 
 /* Number of Flags per Channel*/
 #define CHANNEL_0_NB_OF_FLAGS           0
 #define CHANNEL_1_NB_OF_FLAGS           0
 #define CHANNEL_2_NB_OF_FLAGS           0
+#define CHANNEL_3_NB_OF_FLAGS           0
 
 /* Input Channel to Flag Array Association*/
 
@@ -89,6 +91,13 @@ ace_channel_desc_t g_ace_channel_desc_table[ACE_NB_OF_INPUT_CHANNELS] =
         TM1,                       /* adc_channel_id_t signal_id; */
         34,                        /* uint16_t signal_ppe_offset */
         CHANNEL_2_NB_OF_FLAGS,     /* uint16_t nb_of_flags */
+        0                          /* uint16_t * p_flags_array */
+	},
+	{
+        g_ace_channel_3_name,      /* const uint8_t * p_sz_channel_name */
+        ABPS6,                     /* adc_channel_id_t signal_id; */
+        43,                        /* uint16_t signal_ppe_offset */
+        CHANNEL_3_NB_OF_FLAGS,     /* uint16_t nb_of_flags */
         0                          /* uint16_t * p_flags_array */
 	}
 };
@@ -122,6 +131,12 @@ const ppe_transforms_desc_t g_ace_ppe_transforms_desc_table[ACE_NB_OF_INPUT_CHAN
         37,                        /* uint16_t    c_ppe_offset */
         0x4000,                    /* int16_t     default_m2 */
         0x0000                     /* int16_t     default_c2 */
+	},
+	{
+        45,                        /* uint16_t    m_ppe_offset */
+        46,                        /* uint16_t    c_ppe_offset */
+        0xc000,                    /* int16_t     default_m2 */
+        0xffff                     /* int16_t     default_c2 */
 	}
 };
 
@@ -142,7 +157,8 @@ const uint16_t g_ace_sse_proc_0_sequence[] =
 const uint8_t g_ace_sse_proc_1_name[] = "ADC1_MAIN";
 const uint16_t g_ace_sse_proc_1_sequence[] = 
 {
-	0x2705, 0x2601, 0x2200 
+	0x2705, 0x2601, 0x255c, 0x24c5, 
+	0x0000, 0x2016 
 };
 
 
