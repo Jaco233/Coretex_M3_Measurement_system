@@ -32,16 +32,22 @@
         <div id="middle">
             <h2>Welcome to the Weather Dashboard! </h2>
 
-            <h3>Internal Temperature (C) </h3>
+            <h3>Temperature (C) </h3>
 
             <div id="chart">
-                <canvas id="internal_temp_graph" width="512" height="100"></canvas>
+                <canvas id="temp_graph" width="512" height="100"></canvas>
             </div>
 
-            <h3>Pot Voltage (V)</h3>
+            <h3>Humidity (%)</h3>
 
             <div id="chart">
-                <canvas id="pot_graph" width="512" height="100"></canvas>
+                <canvas id="humid_graph" width="512" height="100"></canvas>
+            </div>
+
+            <h3>UV Index</h3>
+
+            <div id="chart">
+                <canvas id="uv_graph" width="512" height="100"></canvas>
             </div>
         </div>
 
@@ -318,8 +324,9 @@
                     // res = 'took ' + ((new Date()).getTime() - start.getTime()) / 1000 + ' seconds';
                     res = r.responseText.split(",");
                     document.getElementById("demo").innerHTML = res;
-                    internal_temp_line.append(new Date().getTime(), res[0]);
-                    pot_voltage_line.append(new Date().getTime(), res[1]);
+                    temp_line.append(new Date().getTime(), res[0]);
+                    humid_line.append(new Date().getTime(), res[1]);
+                    uv_line.append(new Date().getTime(), res[2]);
                 }
             };
             start = new Date();
@@ -328,32 +335,47 @@
         }
 
 
-        var internal_temp_chart = new SmoothieChart({
+        var temp_chart = new SmoothieChart({
             millisPerPixel: 40,
             maxValueScale: 1.20,
             minValueScale: 1.20
         });
-        internal_temp_chart.streamTo(document.getElementById("internal_temp_graph"));
-        var internal_temp_line = new TimeSeries();
+        temp_chart.streamTo(document.getElementById("temp_graph"));
+        var temp_line = new TimeSeries();
 
-        var pot_voltage_chart = new SmoothieChart({
+        var humid_chart = new SmoothieChart({
             millisPerPixel: 40,
             maxValueScale: 1.20,
             minValueScale: 1.20
         });
-        pot_voltage_chart.streamTo(document.getElementById("pot_graph"));
-        var pot_voltage_line = new TimeSeries();
+        humid_chart.streamTo(document.getElementById("humid_graph"));
+        var humid_line = new TimeSeries();
+
+        var uv_chart = new SmoothieChart({
+            millisPerPixel: 40,
+            maxValueScale: 1.20,
+            minValueScale: 1.20
+        });
+        uv_chart.streamTo(document.getElementById("uv_graph"));
+        var uv_line = new TimeSeries();
+
 
         setInterval(function() {
             loadData();
-        }, 50);
+        }, 500);
 
-        internal_temp_chart.addTimeSeries(internal_temp_line, {
+        temp_chart.addTimeSeries(temp_line, {
             strokeStyle: 'rgb(0, 255, 0)',
             fillStyle: 'rgba(0, 205, 0, 0.4)',
             lineWidth: 3
         });
-        pot_voltage_chart.addTimeSeries(pot_voltage_line, {
+        humid_chart.addTimeSeries(humid_line, {
+            strokeStyle: 'rgb(0, 255, 0)',
+            fillStyle: 'rgba(0, 205, 0, 0.4)',
+            lineWidth: 3
+        });
+
+        uv_chart.addTimeSeries(uv_line, {
             strokeStyle: 'rgb(0, 255, 0)',
             fillStyle: 'rgba(0, 205, 0, 0.4)',
             lineWidth: 3

@@ -207,7 +207,7 @@ static PT_THREAD( sensor_readings ( struct httpd_state *s, char *ptr ) )
 		static char buf[20];
 
 		PSOCK_BEGIN( &s->sout );
-		snprintf( buf, sizeof(buf), "%.4f,%.4f", get_avg_external_temp() ,get_pot_voltage());
+		snprintf( buf, sizeof(buf), "%.4f,%.4f,%.4f", get_avg_external_temp() ,get_humidity(), get_uv_index());
 		PSOCK_SEND_STR( &s->sout, buf);
 		PSOCK_END( &s->sout );
 }

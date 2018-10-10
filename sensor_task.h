@@ -13,5 +13,7 @@
 	float get_external_temp(void);
 	//float convert_lm35_result_to_temp(uint16_t adc_result);
 	float get_avg_external_temp(void);
+	float get_humidity(void);
+	float get_uv_index(void);
 
 #endif /* SENSOR_TASK_H_ */

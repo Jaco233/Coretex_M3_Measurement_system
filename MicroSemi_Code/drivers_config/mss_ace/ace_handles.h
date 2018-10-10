@@ -2,7 +2,7 @@
 * (c) Copyright  Actel Corporation. All rights reserved.
 *
 *ACE configuration .h file
-*Created by Actel MSS_ACE Configurator Tue Oct 09 15:14:59 2018
+*Created by Actel MSS_ACE Configurator Wed Oct 10 15:22:40 2018
 *
 */
 
@@ -20,8 +20,11 @@ extern "C" {
 typedef enum {
     CurrentMonitor_0 = 0,
     VoltageMonitor_0,
+    ExtAnalogTemp,
+    ExtAnalogHumid,
     TemperatureMonitor_0,
-    ExtAnalogSensor_1,
+    ExtAnalogUV,
+    ExtAnalogLight,
     NB_OF_ACE_CHANNEL_HANDLES
 } ace_channel_handle_t;
 

@@ -13,6 +13,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 
 
@@ -56,7 +57,7 @@ float get_external_temp(void)
 {
 		 uint16_t adc_result;
 		 ace_channel_handle_t ext_temp_channel;
-		 ext_temp_channel = (ace_channel_handle_t) 3;
+		 ext_temp_channel = (ace_channel_handle_t) 2;
 		 adc_result = ACE_get_ppe_sample( ext_temp_channel );
 		 float real_temp;
 		 real_temp = convert_lm35_result_to_temp(ext_temp_channel,adc_result);
@@ -69,13 +70,37 @@ float get_avg_external_temp(void)
 	float short_avg_temp;
 	 int a;
 	   /* for loop execution */
-	   for( a = 0; a < 5; a = a + 1 ){
+	   for( a = 0; a < 1000; a = a + 1 ){
 		   short_avg_temp = short_avg_temp + get_external_temp();
-		   vTaskDelay(5); //configTICK_RATE_HZ	=1000 (5ms delay)
+		   //vTaskDelay(50); //configTICK_RATE_HZ	=1000 (5ms delay)
 	   }
-	   short_avg_temp=short_avg_temp/5.0;
+	   short_avg_temp=short_avg_temp/1000;
 
 	return short_avg_temp;
+}
+
+float get_humidity(void)
+{
+		 uint16_t adc_result;
+		 ace_channel_handle_t ext_humid_channel;
+		 ext_humid_channel = (ace_channel_handle_t)3;
+		 adc_result = ACE_get_ppe_sample( ext_humid_channel );
+		 float real_humid_val;
+		 real_humid_val = (float)ACE_convert_to_mV( ext_humid_channel,adc_result )/(float)1000;
+
+		 return 30*real_humid_val*pow(1.015,real_humid_val);
+}
+
+float get_uv_index(void)
+{
+		 uint16_t adc_result;
+		 ace_channel_handle_t ext_uv_channel;
+		 ext_uv_channel = (ace_channel_handle_t)5;
+		 adc_result = ACE_get_ppe_sample( ext_uv_channel );
+		 float real_uv_val;
+		 real_uv_val = (float)ACE_convert_to_mV( ext_uv_channel,adc_result )/(float)1000;
+
+		 return ((7.2*real_uv_val)-7);
 }
 
 
