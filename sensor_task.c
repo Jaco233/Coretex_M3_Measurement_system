@@ -103,4 +103,42 @@ float get_uv_index(void)
 		 return ((7.2*real_uv_val)-7);
 }
 
+float calc_lux_from_voltage(float voltage){
+	float ldrVoltage = 4.6 - voltage;
+	float ldrResistance = ldrVoltage/voltage * 47000;  // 5600 is the ref resistance
+	return 12518931*pow(ldrResistance, -1.405);
+}
+
+float get_avg_external_lux_volts(void)
+{
+	float short_avg_lux;
+	 int a;
+	   /* for loop execution */
+	   for( a = 0; a < 1000; a = a + 1 ){
+		   short_avg_lux = short_avg_lux + get_lux_voltage();
+		   //vTaskDelay(50); //configTICK_RATE_HZ	=1000 (5ms delay)
+	   }
+	   short_avg_lux=short_avg_lux/1000;
+
+	return short_avg_lux;
+}
+
+float get_avg_lux(void)
+{
+		 return calc_lux_from_voltage(get_avg_external_lux_volts());
+}
+
+float get_lux_voltage(void)
+{
+		 uint16_t adc_result;
+		 ace_channel_handle_t ext_lux_channel;
+		 ext_lux_channel = (ace_channel_handle_t)6;
+		 adc_result = ACE_get_ppe_sample( ext_lux_channel );
+		 float real_lux_val;
+		 real_lux_val = ((float)ACE_convert_to_mV( ext_lux_channel,adc_result )/(float)1000)+0.1;// scale voltage to 5v range
+
+		 return real_lux_val;
+}
+
+
 

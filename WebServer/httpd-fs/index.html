@@ -30,11 +30,122 @@
 
         <div id="middle">
             <h2>Welcome to your personal remote real time weather station </h2>
+
+            <div id="widget-section">
+                <div id="thermo-background">
+                    <div id="thermo-progress">
+                        <div id="thermo-bar"></div>
+                    </div>
+                    <div id="tempReading">
+                        <span id="tempReadingVal"></span>&#176C
+                    </div>
+                </div>
+            </div>
+
+            <div id="widget-section">
+                <div id="rain-background">
+                    <div id="rain-progress">
+                        <div id="rain-bar"></div>
+                    </div>
+                    <div id="rainReading">
+                        <span id="rainReadingVal"></span>%
+                    </div>
+                </div>
+            </div>
+
+            <div id="widget-section">
+                <div id="sun-background">
+                    <div id="sun-progress">
+                        <div id="sun-bar"></div>
+                    </div>
+                    <div id="sunReading">
+                        <span id="sunReadingVal"></span> Lux
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+            <br>
+
         </div>
 
 
         <div id="footer"></div>
     </div>
+
+    <script>
+        function move_thermo(pos) {
+            var elem = document.getElementById("thermo-bar");
+            elem.style.height = pos + '%';
+        }
+
+        function move_rain(pos) {
+            var elem = document.getElementById("rain-bar");
+            elem.style.height = pos + '%';
+        }
+
+        function move_sun(pos) {
+            var elem = document.getElementById("sun-bar");
+            if (pos <= 100 && pos > 0) {
+                elem.style.height = pos + '%';
+            } else if (pos <= 0) {
+                elem.style.height = 0 + '%';
+            } else {
+                elem.style.height = 100 + '%';
+            }
+
+        }
+
+
+        function loadData() {
+            var r;
+            try {
+                r = new XMLHttpRequest()
+            } catch (e) {
+                try {
+                    r = new ActiveXObject("Msxml2.XMLHTTP")
+                } catch (e) {
+                    try {
+                        r = new ActiveXObject("Microsoft.XMLHTTP")
+                    } catch (e) {
+                        alert("Your browser does not support AJAX!");
+                        return false
+                    }
+                }
+            }
+            r.onreadystatechange = function() {
+                if (r.readyState == 4) {
+                    // res = 'took ' + ((new Date()).getTime() - start.getTime()) / 1000 + ' seconds';
+                    res = r.responseText.split(",");
+                    var tempVal = Math.round(res[0]);
+                    var humidVal = Math.round(res[1])
+                    var UVVal = Math.round(res[2])
+                    move_thermo(100 - tempVal);
+                    move_rain(100 - humidVal);
+                    move_sun(100 - (UVVal / 30));
+                    document.getElementById("tempReadingVal").innerHTML = tempVal;
+                    document.getElementById("rainReadingVal").innerHTML = humidVal;
+                    document.getElementById("sunReadingVal").innerHTML = UVVal;
+                    // document.getElementById("demo").innerHTML = res;
+                    // temp_line.append(new Date().getTime(), res[0]);
+                    // humid_line.append(new Date().getTime(), res[1]);
+                    // uv_line.append(new Date().getTime(), res[2]);
+                }
+            };
+            start = new Date();
+            r.open("GET", "/sensordata.shtml", true);
+            r.send(null)
+        }
+
+        setInterval(function() {
+            loadData();
+        }, 2500);
+    </script>
 
 </body>
 

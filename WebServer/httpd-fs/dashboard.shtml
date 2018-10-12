@@ -60,6 +60,8 @@
     </div>
 
     <script>
+        //code for chart from http://smoothiecharts.org/
+
         ! function(e) {
             var t = {
                 extend: function() {
@@ -302,6 +304,9 @@
                 return t(e.getHours()) + ":" + t(e.getMinutes()) + ":" + t(e.getSeconds())
             }, e.TimeSeries = i, e.SmoothieChart = a
         }("undefined" == typeof exports ? this : exports);
+
+
+
 
         function loadData() {
             var r;

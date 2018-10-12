@@ -15,5 +15,7 @@
 	float get_avg_external_temp(void);
 	float get_humidity(void);
 	float get_uv_index(void);
+	float get_avg_lux(void);
+	float get_lux_voltage(void);
 
 #endif /* SENSOR_TASK_H_ */
