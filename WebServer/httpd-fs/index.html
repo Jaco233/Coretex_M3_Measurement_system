@@ -64,11 +64,16 @@
                 </div>
             </div>
 
-
-
-
-
-
+            <div id="widget-section">
+                <div id="uv-background">
+                    <div id="uv-progress">
+                        <div id="uv-bar"></div>
+                    </div>
+                    <div id="uvReading">
+                        <span id="uvReadingVal"></span>
+                    </div>
+                </div>
+            </div>
 
             <br>
 
@@ -101,6 +106,17 @@
 
         }
 
+        function move_uv(pos) {
+            var elem = document.getElementById("uv-bar");
+            if (pos <= 100 && pos > 0) {
+                elem.style.height = pos + '%';
+            } else if (pos <= 0) {
+                elem.style.height = 0 + '%';
+            } else {
+                elem.style.height = 100 + '%';
+            }
+        }
+
 
         function loadData() {
             var r;
@@ -124,13 +140,16 @@
                     res = r.responseText.split(",");
                     var tempVal = Math.round(res[0]);
                     var humidVal = Math.round(res[1])
-                    var UVVal = Math.round(res[2])
+                    var LuxVal = Math.round(res[2])
+                    var UVVal = Math.round(res[3])
                     move_thermo(100 - tempVal);
                     move_rain(100 - humidVal);
-                    move_sun(100 - (UVVal / 30));
+                    move_sun(100 - (LuxVal / 30));
+                    move_uv(100 - (UVVal * 6.66));
                     document.getElementById("tempReadingVal").innerHTML = tempVal;
                     document.getElementById("rainReadingVal").innerHTML = humidVal;
-                    document.getElementById("sunReadingVal").innerHTML = UVVal;
+                    document.getElementById("sunReadingVal").innerHTML = LuxVal;
+                    document.getElementById("uvReadingVal").innerHTML = UVVal;
                     // document.getElementById("demo").innerHTML = res;
                     // temp_line.append(new Date().getTime(), res[0]);
                     // humid_line.append(new Date().getTime(), res[1]);

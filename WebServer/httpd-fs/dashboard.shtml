@@ -44,6 +44,12 @@
                 <canvas id="humid_graph" width="512" height="100"></canvas>
             </div>
 
+            <h3>Light Intensity (Lux)</h3>
+
+            <div id="chart">
+                <canvas id="lux_graph" width="512" height="100"></canvas>
+            </div>
+
             <h3>UV Index</h3>
 
             <div id="chart">
@@ -332,6 +338,9 @@
                     temp_line.append(new Date().getTime(), res[0]);
                     humid_line.append(new Date().getTime(), res[1]);
                     uv_line.append(new Date().getTime(), res[2]);
+                    lux_line.append(new Date().getTime(), res[3]);
+
+
                 }
             };
             start = new Date();
@@ -364,6 +373,14 @@
         uv_chart.streamTo(document.getElementById("uv_graph"));
         var uv_line = new TimeSeries();
 
+        var lux_chart = new SmoothieChart({
+            millisPerPixel: 40,
+            maxValueScale: 1.20,
+            minValueScale: 1.20
+        });
+        lux_chart.streamTo(document.getElementById("lux_graph"));
+        var lux_line = new TimeSeries();
+
 
         setInterval(function() {
             loadData();
@@ -375,6 +392,12 @@
             lineWidth: 3
         });
         humid_chart.addTimeSeries(humid_line, {
+            strokeStyle: 'rgb(0, 255, 0)',
+            fillStyle: 'rgba(0, 205, 0, 0.4)',
+            lineWidth: 3
+        });
+
+        lux_chart.addTimeSeries(lux_line, {
             strokeStyle: 'rgb(0, 255, 0)',
             fillStyle: 'rgba(0, 205, 0, 0.4)',
             lineWidth: 3

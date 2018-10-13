@@ -204,10 +204,10 @@ static PT_THREAD( led_io ( struct httpd_state *s, char *ptr ) )
 
 static PT_THREAD( sensor_readings ( struct httpd_state *s, char *ptr ) )
 {
-		static char buf[30];
+		static char buf[35];
 
 		PSOCK_BEGIN( &s->sout );
-		snprintf( buf, sizeof(buf), "%.4f,%.4f,%.4f", get_avg_external_temp() ,get_humidity(), get_avg_lux());
+		snprintf( buf, sizeof(buf), "%.4f,%.4f,%.4f,%.4f", get_avg_external_temp() ,get_humidity(), get_avg_lux(), get_uv_index());
 		PSOCK_SEND_STR( &s->sout, buf);
 		PSOCK_END( &s->sout );
 }
